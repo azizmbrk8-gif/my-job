@@ -9,9 +9,14 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: render-prochain-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   render:
     runs-on: ubuntu-22.04
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -60,7 +65,10 @@ jobs:
         run: |
           set -x
           rm -f out.mp4
-          npx remotion render ProChainAd out.mp4 --log=verbose
+          npx remotion render ProChainAd out.mp4 \
+            --concurrency=2 \
+            --log=verbose \
+            --timeout=60000
           ls -lh out.mp4
           file out.mp4
 
