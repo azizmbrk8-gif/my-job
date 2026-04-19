@@ -46,17 +46,14 @@ jobs:
 
       - name: Ensure background music exists
         run: |
+          set -x
           mkdir -p public
           if [ ! -f public/music.mp3 ]; then
-            echo "No public/music.mp3 found — trying to download default royalty-free track"
-            if ! curl -fsSL --retry 3 --retry-delay 2 \
-                 "https://freepd.com/music/Funshine.mp3" \
-                 -o public/music.mp3; then
-              echo "Download failed — generating 45s silent fallback with ffmpeg"
-              rm -f public/music.mp3
-              ffmpeg -y -f lavfi -i anullsrc=r=44100:cl=stereo \
-                -t 45 -q:a 9 -acodec libmp3lame public/music.mp3
-            fi
+            echo "== generating 45s silent MP3 with ffmpeg =="
+            ffmpeg -y -f lavfi -i anullsrc=r=44100:cl=stereo \
+              -t 45 -q:a 9 -acodec libmp3lame public/music.mp3
+          else
+            echo "== public/music.mp3 already present =="
           fi
           ls -lh public/music.mp3
           file public/music.mp3
