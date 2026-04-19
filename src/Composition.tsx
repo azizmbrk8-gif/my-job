@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Series } from "remotion";
+import { AbsoluteFill, Audio, Series, staticFile } from "remotion";
 import { COLORS, FONT_STACK, SCENE_DURATIONS } from "./theme";
 import {
   Scene1Hook,
@@ -18,8 +18,10 @@ export const ProChainAd: React.FC = () => {
       style={{
         backgroundColor: COLORS.bg,
         fontFamily: FONT_STACK,
+        direction: "rtl",
       }}
     >
+      <Audio src={staticFile("music.mp3")} volume={0.55} />
       <Series>
         <Series.Sequence durationInFrames={SCENE_DURATIONS.s1}>
           <Scene1Hook />

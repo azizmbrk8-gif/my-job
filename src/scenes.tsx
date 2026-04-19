@@ -1,18 +1,17 @@
 import React from "react";
 import {
   AbsoluteFill,
+  Img,
   interpolate,
+  Sequence,
   spring,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
-  Sequence,
 } from "remotion";
 import { COLORS, FONT_STACK, SCENE_DURATIONS } from "./theme";
 import {
-  BoxIcon,
   Caption,
-  ChainMark,
-  CheckIcon,
   ClockIcon,
   CrossIcon,
   FloatingShapes,
@@ -21,14 +20,13 @@ import {
   Logo,
   Notification,
   PhoneFrame,
+  PhoneScreenshot,
   RocketIcon,
   ShieldIcon,
   SoftBackground,
   SparkIcon,
   SpringIn,
-  StoreIcon,
   TruckIcon,
-  WarehouseIcon,
 } from "./ui";
 
 const flexColumnCenter: React.CSSProperties = {
@@ -48,7 +46,6 @@ export const Scene1Hook: React.FC = () => {
         background: `radial-gradient(ellipse at 50% 40%, #3A1E12 0%, ${COLORS.bgDark} 70%)`,
       }}
     >
-      {/* Kitchen-style ambient tiles */}
       <AbsoluteFill style={{ opacity: 0.25 }}>
         {Array.from({ length: 12 }).map((_, i) => (
           <div
@@ -62,7 +59,7 @@ export const Scene1Hook: React.FC = () => {
               borderRadius: 28,
               background:
                 i % 2 === 0
-                  ? "rgba(255,107,44,0.15)"
+                  ? "rgba(242,162,44,0.15)"
                   : "rgba(255,255,255,0.05)",
               border: "2px solid rgba(255,255,255,0.06)",
             }}
@@ -80,8 +77,8 @@ export const Scene1Hook: React.FC = () => {
             padding: "0 60px",
           }}
         >
-          <Headline color="white">
-            Still struggling with{"\n"}unreliable suppliers?
+          <Headline color="white" size={96}>
+            تعبت من التوريد؟
           </Headline>
         </div>
 
@@ -100,24 +97,24 @@ export const Scene1Hook: React.FC = () => {
             >
               <Sequence from={10} durationInFrames={SCENE_DURATIONS.s1}>
                 <Notification
-                  title="Delivery delayed"
-                  body="Arriving 3h late"
+                  title="تأخر التوصيل"
+                  body="الشحنة متأخرة 3 ساعات"
                   color={COLORS.red}
                   delay={0}
                 />
               </Sequence>
               <Sequence from={28} durationInFrames={SCENE_DURATIONS.s1}>
                 <Notification
-                  title="Items missing"
-                  body="2 SKUs not in shipment"
+                  title="نواقص في الطلب"
+                  body="منتجان لم يصلا"
                   color={COLORS.amber}
                   delay={0}
                 />
               </Sequence>
               <Sequence from={46} durationInFrames={SCENE_DURATIONS.s1}>
                 <Notification
-                  title="Supplier unreachable"
-                  body="No response for 2h"
+                  title="المورد لا يرد"
+                  body="بدون تواصل منذ ساعتين"
                   color={COLORS.red}
                   delay={0}
                 />
@@ -127,7 +124,7 @@ export const Scene1Hook: React.FC = () => {
         </div>
       </AbsoluteFill>
 
-      <Caption>Running a restaurant — but struggling with unreliable suppliers?</Caption>
+      <Caption>يا صاحب المطعم… موردينك يتعبونك؟</Caption>
     </AbsoluteFill>
   );
 };
@@ -139,9 +136,13 @@ export const Scene2Pain: React.FC = () => {
     icon: React.ReactNode;
     delay: number;
   }> = [
-    { label: "DELAYS", icon: <ClockIcon size={140} />, delay: 0 },
-    { label: "MISTAKES", icon: <CrossIcon size={140} />, delay: 14 },
-    { label: "NO TRUST", icon: <CrossIcon size={140} color={COLORS.ink} />, delay: 28 },
+    { label: "تأخير في التوصيل", icon: <ClockIcon size={120} />, delay: 0 },
+    { label: "طلبيات ناقصة", icon: <CrossIcon size={120} />, delay: 14 },
+    {
+      label: "جودة غير ثابتة",
+      icon: <CrossIcon size={120} color={COLORS.ink} />,
+      delay: 28,
+    },
   ];
   return (
     <AbsoluteFill>
@@ -151,16 +152,16 @@ export const Scene2Pain: React.FC = () => {
         style={{
           ...flexColumnCenter,
           justifyContent: "flex-start",
-          paddingTop: 220,
+          paddingTop: 200,
         }}
       >
-        <Headline>Delays. Mistakes.{"\n"}No trust.</Headline>
+        <Headline>تأخير. نواقص. وقت ضايع.</Headline>
         <div
           style={{
             display: "flex",
             flexDirection: "column",
-            gap: 40,
-            marginTop: 140,
+            gap: 36,
+            marginTop: 120,
             width: "100%",
             padding: "0 80px",
           }}
@@ -176,7 +177,7 @@ export const Scene2Pain: React.FC = () => {
           ))}
         </div>
       </AbsoluteFill>
-      <Caption>Late deliveries. Inconsistent quality. Zero trust.</Caption>
+      <Caption>تعبك مفهوم… بس في حل أسهل بكثير</Caption>
     </AbsoluteFill>
   );
 };
@@ -188,7 +189,7 @@ const PainCard: React.FC<{ label: string; icon: React.ReactNode }> = ({
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const s = spring({ frame, fps, config: { damping: 14, stiffness: 140 } });
-  const tx = interpolate(s, [0, 1], [-600, 0]);
+  const tx = interpolate(s, [0, 1], [600, 0]);
   const op = interpolate(s, [0, 1], [0, 1]);
   return (
     <div
@@ -197,18 +198,20 @@ const PainCard: React.FC<{ label: string; icon: React.ReactNode }> = ({
         opacity: op,
         background: "white",
         borderRadius: 32,
-        padding: "34px 40px",
+        padding: "30px 40px",
         boxShadow: "0 24px 60px rgba(0,0,0,0.08)",
         display: "flex",
+        flexDirection: "row-reverse",
         alignItems: "center",
-        gap: 32,
+        gap: 28,
+        direction: "rtl",
       }}
     >
       {icon}
       <span
         style={{
           fontFamily: FONT_STACK,
-          fontSize: 80,
+          fontSize: 64,
           fontWeight: 900,
           color: COLORS.ink,
           letterSpacing: -1,
@@ -231,10 +234,10 @@ export const Scene3Intro: React.FC = () => {
   });
   const scale = interpolate(s, [0, 1], [0.4, 1]);
   const op = interpolate(s, [0, 1], [0, 1]);
-  const tagOp = interpolate(frame, [18, 26], [0, 1], {
+  const tagOp = interpolate(frame, [18, 28], [0, 1], {
     extrapolateRight: "clamp",
   });
-  const tagTy = interpolate(frame, [18, 28], [30, 0], {
+  const tagTy = interpolate(frame, [18, 30], [30, 0], {
     extrapolateRight: "clamp",
   });
   return (
@@ -242,31 +245,27 @@ export const Scene3Intro: React.FC = () => {
       <SoftBackground />
       <FloatingShapes />
       <AbsoluteFill style={flexColumnCenter}>
-        <div
-          style={{
-            transform: `scale(${scale})`,
-            opacity: op,
-          }}
-        >
-          <Logo size={1.1} />
+        <div style={{ transform: `scale(${scale})`, opacity: op }}>
+          <Logo width={640} />
         </div>
         <div
           style={{
-            marginTop: 44,
+            marginTop: 30,
             opacity: tagOp,
             transform: `translateY(${tagTy}px)`,
             fontFamily: FONT_STACK,
-            fontSize: 48,
-            fontWeight: 600,
-            color: COLORS.muted,
-            letterSpacing: 1,
-            textTransform: "uppercase",
+            fontSize: 56,
+            fontWeight: 700,
+            color: COLORS.inkSoft,
+            direction: "rtl",
+            textAlign: "center",
+            padding: "0 80px",
           }}
         >
-          The marketplace for food pros
+          منصّتك الذكية للمطاعم والمقاهي
         </div>
       </AbsoluteFill>
-      <Caption>Meet ProChain — the all-in-one marketplace for restaurants and cafés.</Caption>
+      <Caption>تعرّف على بروتشين — كل احتياجاتك في مكان واحد</Caption>
     </AbsoluteFill>
   );
 };
@@ -288,380 +287,72 @@ export const Scene4Demo: React.FC = () => {
           justifyContent: "center",
         }}
       >
-        <Headline>Simple. Fast. Reliable.</Headline>
+        <Headline>سهلة. سريعة. موثوقة.</Headline>
       </div>
 
-      <AbsoluteFill
-        style={{
-          ...flexColumnCenter,
-          paddingTop: 200,
-        }}
-      >
-        <PhoneFrame scale={0.8}>
+      <AbsoluteFill style={{ ...flexColumnCenter, paddingTop: 180 }}>
+        <PhoneFrame scale={0.82}>
           <DemoScreens />
         </PhoneFrame>
       </AbsoluteFill>
 
-      <Caption>Order everything you need from trusted suppliers — fast.</Caption>
+      <Caption>تصفح، اطلب، وتابع طلباتك — بضغطة واحدة</Caption>
     </AbsoluteFill>
   );
 };
 
 const DemoScreens: React.FC = () => {
   const frame = useCurrentFrame();
-  const stage = frame < 70 ? 0 : frame < 140 ? 1 : frame < 210 ? 2 : 3;
+  const screens = [
+    "buyer_login.png",
+    "buyer_home.png",
+    "buyer_products.png",
+    "buyer_orders.png",
+    "buyer_notifications.png",
+  ];
+  const each = Math.floor(SCENE_DURATIONS.s4 / screens.length);
+  const idx = Math.min(Math.floor(frame / each), screens.length - 1);
+  const within = frame - idx * each;
+  const fade = interpolate(within, [0, 10, each - 10, each], [0, 1, 1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const zoom = interpolate(within, [0, each], [1.02, 1.08]);
   return (
     <div
       style={{
         width: "100%",
         height: "100%",
-        background: "#FAFAFA",
+        background: COLORS.white,
         position: "relative",
         overflow: "hidden",
       }}
     >
+      <div style={{ opacity: fade, transform: `scale(${zoom})`, height: "100%" }}>
+        <PhoneScreenshot src={screens[idx]} />
+      </div>
       <div
         style={{
-          padding: "44px 34px 24px",
+          position: "absolute",
+          bottom: 40,
+          left: 0,
+          right: 0,
           display: "flex",
-          alignItems: "center",
-          gap: 14,
-          borderBottom: `2px solid ${COLORS.line}`,
-          background: "white",
+          justifyContent: "center",
+          gap: 12,
         }}
       >
-        <ChainMark size={42} />
-        <span
-          style={{
-            fontFamily: FONT_STACK,
-            fontWeight: 800,
-            fontSize: 32,
-            color: COLORS.ink,
-          }}
-        >
-          Pro<span style={{ color: COLORS.orange }}>Chain</span>
-        </span>
-      </div>
-
-      {stage === 0 && <BrowseSuppliers />}
-      {stage === 1 && <SelectProducts />}
-      {stage === 2 && <OrderConfirm />}
-      {stage === 3 && <DeliveryTracking />}
-    </div>
-  );
-};
-
-const BrowseSuppliers: React.FC = () => {
-  const frame = useCurrentFrame();
-  const scrollY = interpolate(frame, [0, 70], [0, -160], {
-    extrapolateRight: "clamp",
-  });
-  const suppliers = [
-    { name: "Fresh Farms Co.", tag: "Produce • Verified", rating: "4.9" },
-    { name: "Costa Roasters", tag: "Coffee • Verified", rating: "4.8" },
-    { name: "Blue Sea Fish", tag: "Seafood • Verified", rating: "4.7" },
-    { name: "Artisan Bakery", tag: "Bakery • Verified", rating: "4.9" },
-    { name: "Dairy Direct", tag: "Dairy • Verified", rating: "4.8" },
-  ];
-  return (
-    <div style={{ padding: "24px 28px", transform: `translateY(${scrollY}px)` }}>
-      <div
-        style={{
-          fontFamily: FONT_STACK,
-          fontWeight: 800,
-          fontSize: 34,
-          color: COLORS.ink,
-          marginBottom: 20,
-        }}
-      >
-        Browse suppliers
-      </div>
-      {suppliers.map((s, i) => (
-        <div
-          key={i}
-          style={{
-            background: "white",
-            borderRadius: 22,
-            padding: "22px 22px",
-            marginBottom: 18,
-            boxShadow: "0 8px 24px rgba(0,0,0,0.04)",
-            display: "flex",
-            alignItems: "center",
-            gap: 18,
-          }}
-        >
-          <div
-            style={{
-              width: 80,
-              height: 80,
-              borderRadius: 18,
-              background: COLORS.orangeSoft,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <BoxIcon size={52} />
-          </div>
-          <div style={{ flex: 1 }}>
-            <div
-              style={{
-                fontFamily: FONT_STACK,
-                fontWeight: 800,
-                fontSize: 28,
-                color: COLORS.ink,
-              }}
-            >
-              {s.name}
-            </div>
-            <div
-              style={{
-                fontFamily: FONT_STACK,
-                fontWeight: 500,
-                fontSize: 22,
-                color: COLORS.muted,
-              }}
-            >
-              {s.tag}
-            </div>
-          </div>
-          <div
-            style={{
-              fontFamily: FONT_STACK,
-              fontWeight: 800,
-              fontSize: 24,
-              color: COLORS.orange,
-            }}
-          >
-            {"★ " + s.rating}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-const SelectProducts: React.FC = () => {
-  const frame = useCurrentFrame() - 70;
-  const products = [
-    { name: "Tomatoes", price: "$2.40/kg" },
-    { name: "Olive oil", price: "$14.90/L" },
-    { name: "Espresso beans", price: "$28.00/kg" },
-    { name: "Flour (00)", price: "$1.80/kg" },
-  ];
-  return (
-    <div style={{ padding: "24px 28px" }}>
-      <div
-        style={{
-          fontFamily: FONT_STACK,
-          fontWeight: 800,
-          fontSize: 34,
-          color: COLORS.ink,
-          marginBottom: 20,
-        }}
-      >
-        Fresh Farms Co.
-      </div>
-      {products.map((p, i) => {
-        const added = frame > i * 14 + 6;
-        return (
+        {screens.map((_, i) => (
           <div
             key={i}
             style={{
-              background: "white",
-              borderRadius: 20,
-              padding: "20px 22px",
-              marginBottom: 14,
-              display: "flex",
-              alignItems: "center",
-              gap: 18,
-              boxShadow: "0 6px 18px rgba(0,0,0,0.04)",
-              border: added
-                ? `2px solid ${COLORS.orange}`
-                : `2px solid transparent`,
+              width: i === idx ? 28 : 12,
+              height: 8,
+              borderRadius: 6,
+              background: i === idx ? COLORS.orange : "rgba(0,0,0,0.25)",
             }}
-          >
-            <div
-              style={{
-                width: 64,
-                height: 64,
-                borderRadius: 14,
-                background: COLORS.bg,
-              }}
-            />
-            <div style={{ flex: 1 }}>
-              <div
-                style={{
-                  fontFamily: FONT_STACK,
-                  fontWeight: 700,
-                  fontSize: 26,
-                  color: COLORS.ink,
-                }}
-              >
-                {p.name}
-              </div>
-              <div
-                style={{
-                  fontFamily: FONT_STACK,
-                  fontWeight: 500,
-                  fontSize: 22,
-                  color: COLORS.muted,
-                }}
-              >
-                {p.price}
-              </div>
-            </div>
-            <div
-              style={{
-                background: added ? COLORS.orange : COLORS.bg,
-                color: added ? "white" : COLORS.ink,
-                padding: "10px 18px",
-                borderRadius: 999,
-                fontFamily: FONT_STACK,
-                fontWeight: 800,
-                fontSize: 22,
-              }}
-            >
-              {added ? "Added" : "+ Add"}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
-
-const OrderConfirm: React.FC = () => {
-  const frame = useCurrentFrame() - 140;
-  const { fps } = useVideoConfig();
-  const s = spring({ frame, fps, config: { damping: 10, stiffness: 140 } });
-  const scale = interpolate(s, [0, 1], [0.3, 1]);
-  return (
-    <div
-      style={{
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 28,
-        padding: "0 40px",
-      }}
-    >
-      <div style={{ transform: `scale(${scale})` }}>
-        <CheckIcon size={220} />
-      </div>
-      <div
-        style={{
-          fontFamily: FONT_STACK,
-          fontWeight: 900,
-          fontSize: 46,
-          color: COLORS.ink,
-        }}
-      >
-        Order confirmed
-      </div>
-      <div
-        style={{
-          fontFamily: FONT_STACK,
-          fontWeight: 500,
-          fontSize: 26,
-          color: COLORS.muted,
-          textAlign: "center",
-        }}
-      >
-        4 items • Delivery tomorrow
-      </div>
-    </div>
-  );
-};
-
-const DeliveryTracking: React.FC = () => {
-  const frame = useCurrentFrame() - 210;
-  const progress = interpolate(frame, [0, 70], [0.1, 0.9], {
-    extrapolateRight: "clamp",
-  });
-  const pathW = 560;
-  const pathH = 420;
-  return (
-    <div
-      style={{
-        height: "100%",
-        padding: "20px 28px",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <div
-        style={{
-          fontFamily: FONT_STACK,
-          fontWeight: 800,
-          fontSize: 34,
-          color: COLORS.ink,
-          marginBottom: 18,
-        }}
-      >
-        Live tracking
-      </div>
-      <div
-        style={{
-          flex: 1,
-          background: COLORS.bg,
-          borderRadius: 24,
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <svg
-          width={pathW}
-          height={pathH}
-          viewBox={`0 0 ${pathW} ${pathH}`}
-          style={{ position: "absolute", inset: 0, margin: "auto" }}
-        >
-          <path
-            d={`M 40 ${pathH - 40} Q ${pathW / 2} 20 ${pathW - 40} ${pathH - 40}`}
-            stroke={COLORS.orangeSoft}
-            strokeWidth="14"
-            fill="none"
-            strokeLinecap="round"
           />
-          <path
-            d={`M 40 ${pathH - 40} Q ${pathW / 2} 20 ${pathW - 40} ${pathH - 40}`}
-            stroke={COLORS.orange}
-            strokeWidth="14"
-            fill="none"
-            strokeLinecap="round"
-            strokeDasharray="1000"
-            strokeDashoffset={1000 * (1 - progress)}
-          />
-          <circle cx="40" cy={pathH - 40} r="14" fill={COLORS.ink} />
-          <circle cx={pathW - 40} cy={pathH - 40} r="14" fill={COLORS.green} />
-        </svg>
-        <div
-          style={{
-            position: "absolute",
-            left: 40 + (pathW - 80) * progress - 40,
-            top:
-              pathH -
-              40 -
-              Math.sin(progress * Math.PI) * (pathH - 100) -
-              32,
-          }}
-        >
-          <TruckIcon size={80} />
-        </div>
-      </div>
-      <div
-        style={{
-          fontFamily: FONT_STACK,
-          fontWeight: 700,
-          fontSize: 26,
-          color: COLORS.orange,
-          marginTop: 18,
-          textAlign: "center",
-        }}
-      >
-        Arriving in 12 min
+        ))}
       </div>
     </div>
   );
@@ -672,18 +363,18 @@ export const Scene5Benefits: React.FC = () => {
   const benefits = [
     {
       icon: <ShieldIcon size={110} />,
-      title: "Verified suppliers",
-      body: "Every partner vetted for quality & reliability",
+      title: "موردون موثوقون",
+      body: "كل شريك مُعتمد ومختار بعناية",
     },
     {
       icon: <SparkIcon size={110} />,
-      title: "Easy-to-use platform",
-      body: "Order in minutes — not hours",
+      title: "تطبيق سهل وسريع",
+      body: "تطلب في دقائق — مو ساعات",
     },
     {
       icon: <RocketIcon size={110} />,
-      title: "Faster operations",
-      body: "More efficiency, more sales",
+      title: "كفاءة ونمو",
+      body: "وقت أقل، مبيعات أكثر",
     },
   ];
   return (
@@ -700,14 +391,10 @@ export const Scene5Benefits: React.FC = () => {
           justifyContent: "center",
         }}
       >
-        <Headline>Built for your success</Headline>
+        <Headline>مصنوعة عشان نجاحك</Headline>
       </div>
       <AbsoluteFill
-        style={{
-          ...flexColumnCenter,
-          paddingTop: 160,
-          gap: 36,
-        }}
+        style={{ ...flexColumnCenter, paddingTop: 140, gap: 36 }}
       >
         {benefits.map((b, i) => (
           <Sequence
@@ -719,7 +406,7 @@ export const Scene5Benefits: React.FC = () => {
           </Sequence>
         ))}
       </AbsoluteFill>
-      <Caption>Trusted suppliers. Easy platform. Faster growth.</Caption>
+      <Caption>موردون موثوقون، تطبيق سهل، ونمو أسرع</Caption>
     </AbsoluteFill>
   );
 };
@@ -740,13 +427,15 @@ const BenefitRow: React.FC<{
         width: 900,
         background: "white",
         borderRadius: 32,
-        padding: "34px 40px",
+        padding: "32px 40px",
         display: "flex",
+        flexDirection: "row-reverse",
         alignItems: "center",
         gap: 32,
         boxShadow: "0 24px 60px rgba(0,0,0,0.08)",
         transform: `translateY(${ty}px)`,
         opacity: op,
+        direction: "rtl",
       }}
     >
       <div
@@ -758,16 +447,17 @@ const BenefitRow: React.FC<{
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          flexShrink: 0,
         }}
       >
         {icon}
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
         <span
           style={{
             fontFamily: FONT_STACK,
             fontWeight: 900,
-            fontSize: 48,
+            fontSize: 52,
             color: COLORS.ink,
             letterSpacing: -1,
           }}
@@ -777,8 +467,8 @@ const BenefitRow: React.FC<{
         <span
           style={{
             fontFamily: FONT_STACK,
-            fontWeight: 500,
-            fontSize: 28,
+            fontWeight: 600,
+            fontSize: 30,
             color: COLORS.muted,
           }}
         >
@@ -792,15 +482,17 @@ const BenefitRow: React.FC<{
 // ---------- Scene 6: Full Service ----------
 export const Scene6FullService: React.FC = () => {
   const frame = useCurrentFrame();
-  const truckX = interpolate(frame, [20, 120], [-80, 900], {
+  const truckX = interpolate(frame, [20, 160], [-80, 1100], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const stages = [
-    { icon: <WarehouseIcon size={180} />, label: "Sourcing" },
-    { icon: <BoxIcon size={180} />, label: "Storage" },
-    { icon: <StoreIcon size={180} />, label: "Delivery" },
+  const pairs = [
+    { src: "supplier_home.png", label: "لوحة المورد" },
+    { src: "supplier_orders.png", label: "إدارة الطلبات" },
+    { src: "supplier_products.png", label: "منتجاتك" },
   ];
+  const each = Math.floor(SCENE_DURATIONS.s6 / pairs.length);
+  const idx = Math.min(Math.floor(frame / each), pairs.length - 1);
   return (
     <AbsoluteFill>
       <SoftBackground />
@@ -808,93 +500,39 @@ export const Scene6FullService: React.FC = () => {
       <div
         style={{
           position: "absolute",
-          top: 160,
+          top: 140,
           left: 0,
           right: 0,
           display: "flex",
           justifyContent: "center",
         }}
       >
-        <Headline>One platform.{"\n"}End-to-end.</Headline>
+        <Headline>للمشتري وللمورد — منصة وحدة</Headline>
       </div>
 
-      <AbsoluteFill
-        style={{
-          ...flexColumnCenter,
-          paddingTop: 340,
-        }}
-      >
+      <AbsoluteFill style={{ ...flexColumnCenter, paddingTop: 360 }}>
+        <PhoneFrame scale={0.72}>
+          <PhoneScreenshot src={pairs[idx].src} />
+        </PhoneFrame>
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 32,
-            alignItems: "center",
-            width: "100%",
+            marginTop: 28,
+            fontFamily: FONT_STACK,
+            fontSize: 44,
+            fontWeight: 800,
+            color: COLORS.orangeDark,
+            direction: "rtl",
           }}
         >
-          {stages.map((st, i) => (
-            <Sequence
-              key={i}
-              from={i * 18}
-              durationInFrames={SCENE_DURATIONS.s6}
-            >
-              <SpringIn from={0.7} damping={14}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 40,
-                    background: "white",
-                    padding: "28px 44px",
-                    borderRadius: 32,
-                    boxShadow: "0 20px 50px rgba(0,0,0,0.08)",
-                    width: 760,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 180,
-                      height: 180,
-                      borderRadius: 28,
-                      background: COLORS.orangeSoft,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {st.icon}
-                  </div>
-                  <span
-                    style={{
-                      fontFamily: FONT_STACK,
-                      fontSize: 80,
-                      fontWeight: 900,
-                      color: COLORS.ink,
-                      letterSpacing: -1,
-                    }}
-                  >
-                    {st.label}
-                  </span>
-                </div>
-              </SpringIn>
-            </Sequence>
-          ))}
+          {pairs[idx].label}
         </div>
 
-        {/* Moving truck along the bottom */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 300,
-            left: truckX,
-          }}
-        >
-          <TruckIcon size={160} />
+        <div style={{ position: "absolute", bottom: 220, left: truckX }}>
+          <TruckIcon size={140} />
         </div>
       </AbsoluteFill>
 
-      <Caption>From sourcing to storage to delivery — ProChain handles it all.</Caption>
+      <Caption>من التوريد للتخزين للتوصيل — نتولى كل شي</Caption>
     </AbsoluteFill>
   );
 };
@@ -925,79 +563,86 @@ export const Scene7WinWin: React.FC = () => {
           justifyContent: "center",
         }}
       >
-        <Headline>Grow together</Headline>
+        <Headline>ننمو مع بعض</Headline>
       </div>
       <AbsoluteFill style={flexColumnCenter}>
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 20,
-            marginTop: 100,
+            gap: 16,
+            marginTop: 120,
           }}
         >
           <div style={{ transform: `translateX(${leftX}px)` }}>
             <PersonaCard
-              icon={<StoreIcon size={140} />}
-              label="Buyers"
-              sub="More efficiency"
+              src="buyer_account.png"
+              label="للمشتري"
+              sub="توفير وراحة"
               accent={COLORS.orange}
             />
           </div>
-          <div style={{ transform: `scale(${pulse})` }}>
-            <HandshakeIcon size={200} />
+          <div style={{ transform: `scale(${pulse})`, flexShrink: 0 }}>
+            <HandshakeIcon size={180} />
           </div>
           <div style={{ transform: `translateX(${rightX}px)` }}>
             <PersonaCard
-              icon={<WarehouseIcon size={140} />}
-              label="Suppliers"
-              sub="More sales"
+              src="supplier_account.png"
+              label="للمورد"
+              sub="مبيعات أكثر"
               accent={COLORS.ink}
             />
           </div>
         </div>
       </AbsoluteFill>
-      <Caption>More efficiency for buyers. More sales for suppliers.</Caption>
+      <Caption>راحة للمشترين، ومبيعات أكثر للموردين</Caption>
     </AbsoluteFill>
   );
 };
 
 const PersonaCard: React.FC<{
-  icon: React.ReactNode;
+  src: string;
   label: string;
   sub: string;
   accent: string;
-}> = ({ icon, label, sub, accent }) => (
+}> = ({ src, label, sub, accent }) => (
   <div
     style={{
       background: "white",
       borderRadius: 32,
-      padding: "36px 30px",
+      padding: 20,
       boxShadow: "0 24px 60px rgba(0,0,0,0.1)",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      gap: 18,
-      width: 340,
+      gap: 16,
+      width: 320,
+      direction: "rtl",
     }}
   >
     <div
       style={{
-        width: 180,
-        height: 180,
-        borderRadius: 28,
+        width: 280,
+        height: 560,
+        borderRadius: 24,
+        overflow: "hidden",
         background: COLORS.bg,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
       }}
     >
-      {icon}
+      <Img
+        src={staticFile(src)}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          objectPosition: "top",
+        }}
+      />
     </div>
     <span
       style={{
         fontFamily: FONT_STACK,
-        fontSize: 44,
+        fontSize: 46,
         fontWeight: 900,
         color: accent,
         letterSpacing: -1,
@@ -1008,8 +653,8 @@ const PersonaCard: React.FC<{
     <span
       style={{
         fontFamily: FONT_STACK,
-        fontSize: 26,
-        fontWeight: 600,
+        fontSize: 30,
+        fontWeight: 700,
         color: COLORS.muted,
         textAlign: "center",
       }}
@@ -1027,9 +672,9 @@ export const Scene8CTA: React.FC = () => {
     <AbsoluteFill>
       <SoftBackground />
       <FloatingShapes />
-      <AbsoluteFill style={{ ...flexColumnCenter, gap: 60 }}>
+      <AbsoluteFill style={{ ...flexColumnCenter, gap: 70 }}>
         <SpringIn from={0.5} damping={12}>
-          <Logo size={1.1} />
+          <Logo width={680} />
         </SpringIn>
 
         <Sequence from={14} durationInFrames={SCENE_DURATIONS.s8}>
@@ -1039,16 +684,17 @@ export const Scene8CTA: React.FC = () => {
                 transform: `scale(${pulse})`,
                 background: COLORS.orange,
                 color: "white",
-                padding: "34px 72px",
+                padding: "32px 80px",
                 borderRadius: 999,
                 fontFamily: FONT_STACK,
                 fontWeight: 900,
-                fontSize: 56,
+                fontSize: 58,
                 letterSpacing: -1,
-                boxShadow: "0 24px 60px rgba(255,107,44,0.4)",
+                direction: "rtl",
+                boxShadow: "0 24px 60px rgba(242,162,44,0.5)",
               }}
             >
-              Join ProChain Today
+              انضم الآن
             </div>
           </SpringIn>
         </Sequence>
@@ -1057,13 +703,14 @@ export const Scene8CTA: React.FC = () => {
           <div
             style={{
               fontFamily: FONT_STACK,
-              fontSize: 38,
-              fontWeight: 700,
+              fontSize: 42,
+              fontWeight: 800,
               color: COLORS.ink,
-              opacity: 0.8,
+              direction: "rtl",
+              opacity: 0.85,
             }}
           >
-            Link in bio
+            الرابط في البايو
           </div>
         </Sequence>
       </AbsoluteFill>

@@ -1,75 +1,28 @@
 import React from "react";
 import {
   AbsoluteFill,
+  Img,
   interpolate,
   spring,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
 import { COLORS, FONT_STACK } from "./theme";
 
-export const ChainMark: React.FC<{ size: number }> = ({ size }) => (
-  <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
-    <rect
-      x="6"
-      y="32"
-      width="42"
-      height="36"
-      rx="18"
-      stroke={COLORS.orange}
-      strokeWidth="10"
-    />
-    <rect
-      x="52"
-      y="32"
-      width="42"
-      height="36"
-      rx="18"
-      stroke={COLORS.ink}
-      strokeWidth="10"
-    />
-    <rect
-      x="42"
-      y="46"
-      width="16"
-      height="8"
-      rx="2"
-      fill={COLORS.orange}
-    />
-  </svg>
+export const Logo: React.FC<{ width?: number }> = ({ width = 520 }) => (
+  <Img
+    src={staticFile("logo.jpeg")}
+    style={{ width, height: "auto", objectFit: "contain" }}
+  />
 );
-
-export const Logo: React.FC<{ size?: number; color?: string }> = ({
-  size = 1,
-  color = COLORS.ink,
-}) => {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 22 * size,
-        fontFamily: FONT_STACK,
-        fontWeight: 800,
-        fontSize: 110 * size,
-        color,
-        letterSpacing: -3,
-        lineHeight: 1,
-      }}
-    >
-      <ChainMark size={92 * size} />
-      <span>
-        Pro<span style={{ color: COLORS.orange }}>Chain</span>
-      </span>
-    </div>
-  );
-};
 
 export const Headline: React.FC<{
   children: React.ReactNode;
   color?: string;
   delay?: number;
-}> = ({ children, color = COLORS.ink, delay = 0 }) => {
+  size?: number;
+}> = ({ children, color = COLORS.ink, delay = 0, size = 92 }) => {
   const frame = useCurrentFrame();
   const local = frame - delay;
   const opacity = interpolate(local, [0, 8], [0, 1], {
@@ -84,12 +37,13 @@ export const Headline: React.FC<{
     <div
       style={{
         fontFamily: FONT_STACK,
-        fontSize: 88,
-        fontWeight: 800,
+        fontSize: size,
+        fontWeight: 900,
         color,
-        lineHeight: 1.05,
-        letterSpacing: -2,
+        lineHeight: 1.25,
+        letterSpacing: -1,
         textAlign: "center",
+        direction: "rtl",
         opacity,
         transform: `translateY(${translateY}px)`,
         padding: "0 60px",
@@ -122,16 +76,17 @@ export const Caption: React.FC<{ children: React.ReactNode }> = ({
     >
       <div
         style={{
-          background: "rgba(0,0,0,0.82)",
+          background: "rgba(15, 23, 42, 0.88)",
           color: "white",
-          padding: "26px 42px",
+          padding: "28px 42px",
           borderRadius: 28,
           fontFamily: FONT_STACK,
           fontSize: 46,
           fontWeight: 700,
           textAlign: "center",
-          lineHeight: 1.25,
+          lineHeight: 1.35,
           maxWidth: "100%",
+          direction: "rtl",
           boxShadow: "0 24px 60px rgba(0,0,0,0.25)",
         }}
       >
@@ -144,15 +99,14 @@ export const Caption: React.FC<{ children: React.ReactNode }> = ({
 export const SoftBackground: React.FC = () => (
   <AbsoluteFill
     style={{
-      background: `radial-gradient(circle at 30% 20%, ${COLORS.orangeSoft} 0%, ${COLORS.bg} 55%, #FFFFFF 100%)`,
+      background: `radial-gradient(circle at 50% 20%, ${COLORS.orangeSoft} 0%, ${COLORS.bg} 55%, #FFFFFF 100%)`,
     }}
   />
 );
 
 export const FloatingShapes: React.FC = () => {
   const frame = useCurrentFrame();
-  const drift = (i: number) =>
-    Math.sin((frame / 30 + i) * 0.9) * 18;
+  const drift = (i: number) => Math.sin((frame / 30 + i) * 0.9) * 18;
   return (
     <AbsoluteFill style={{ pointerEvents: "none" }}>
       {[
@@ -227,6 +181,18 @@ export const PhoneFrame: React.FC<{
   );
 };
 
+export const PhoneScreenshot: React.FC<{ src: string }> = ({ src }) => (
+  <Img
+    src={staticFile(src)}
+    style={{
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+      objectPosition: "top",
+    }}
+  />
+);
+
 export const SpringIn: React.FC<{
   children: React.ReactNode;
   delay?: number;
@@ -276,6 +242,7 @@ export const Notification: React.FC<{
         gap: 18,
         alignItems: "center",
         fontFamily: FONT_STACK,
+        direction: "rtl",
       }}
     >
       <div
@@ -288,9 +255,7 @@ export const Notification: React.FC<{
         }}
       />
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        <span
-          style={{ fontWeight: 800, fontSize: 28, color: COLORS.ink }}
-        >
+        <span style={{ fontWeight: 800, fontSize: 28, color: COLORS.ink }}>
           {title}
         </span>
         <span style={{ fontWeight: 500, fontSize: 24, color: COLORS.muted }}>
@@ -348,25 +313,6 @@ export const ClockIcon: React.FC<{ size?: number; color?: string }> = ({
   </svg>
 );
 
-export const TruckIcon: React.FC<{ size?: number; color?: string }> = ({
-  size = 80,
-  color = COLORS.orange,
-}) => (
-  <svg width={size} height={size} viewBox="0 0 100 64" fill="none">
-    <rect x="2" y="14" width="56" height="34" rx="6" fill={color} />
-    <path
-      d="M58 22H78L94 38V48H58V22Z"
-      fill={color}
-      opacity="0.85"
-    />
-    <rect x="64" y="26" width="16" height="12" rx="2" fill="white" opacity="0.8" />
-    <circle cx="22" cy="52" r="9" fill={COLORS.ink} />
-    <circle cx="22" cy="52" r="3.5" fill="white" />
-    <circle cx="76" cy="52" r="9" fill={COLORS.ink} />
-    <circle cx="76" cy="52" r="3.5" fill="white" />
-  </svg>
-);
-
 export const ShieldIcon: React.FC<{ size?: number; color?: string }> = ({
   size = 64,
   color = COLORS.orange,
@@ -408,41 +354,35 @@ export const RocketIcon: React.FC<{ size?: number; color?: string }> = ({
       fill={color}
     />
     <circle cx="32" cy="26" r="6" fill="white" />
-    <path d="M14 50L22 42M50 50L42 42" stroke={color} strokeWidth="5" strokeLinecap="round" />
+    <path
+      d="M14 50L22 42M50 50L42 42"
+      stroke={color}
+      strokeWidth="5"
+      strokeLinecap="round"
+    />
   </svg>
 );
 
-export const WarehouseIcon: React.FC<{ size?: number; color?: string }> = ({
+export const TruckIcon: React.FC<{ size?: number; color?: string }> = ({
   size = 80,
   color = COLORS.orange,
 }) => (
-  <svg width={size} height={size} viewBox="0 0 80 64" fill="none">
-    <path d="M4 24L40 6L76 24V60H4V24Z" fill={color} />
-    <rect x="22" y="32" width="36" height="28" fill="white" />
-    <rect x="22" y="32" width="36" height="6" fill={COLORS.ink} opacity="0.15" />
-    <rect x="30" y="44" width="20" height="16" fill={color} />
-  </svg>
-);
-
-export const StoreIcon: React.FC<{ size?: number; color?: string }> = ({
-  size = 80,
-  color = COLORS.orange,
-}) => (
-  <svg width={size} height={size} viewBox="0 0 80 64" fill="none">
-    <path d="M8 14H72L66 30H14L8 14Z" fill={color} />
-    <rect x="14" y="30" width="52" height="30" fill="white" stroke={color} strokeWidth="3" />
-    <rect x="32" y="38" width="16" height="22" fill={color} />
-  </svg>
-);
-
-export const BoxIcon: React.FC<{ size?: number; color?: string }> = ({
-  size = 64,
-  color = COLORS.orange,
-}) => (
-  <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
-    <path d="M32 4L58 16V46L32 58L6 46V16L32 4Z" fill={color} />
-    <path d="M6 16L32 28L58 16" stroke="white" strokeWidth="3" />
-    <path d="M32 28V58" stroke="white" strokeWidth="3" />
+  <svg width={size} height={size} viewBox="0 0 100 64" fill="none">
+    <rect x="2" y="14" width="56" height="34" rx="6" fill={color} />
+    <path d="M58 22H78L94 38V48H58V22Z" fill={color} opacity="0.85" />
+    <rect
+      x="64"
+      y="26"
+      width="16"
+      height="12"
+      rx="2"
+      fill="white"
+      opacity="0.8"
+    />
+    <circle cx="22" cy="52" r="9" fill={COLORS.ink} />
+    <circle cx="22" cy="52" r="3.5" fill="white" />
+    <circle cx="76" cy="52" r="9" fill={COLORS.ink} />
+    <circle cx="76" cy="52" r="3.5" fill="white" />
   </svg>
 );
 
@@ -451,14 +391,8 @@ export const HandshakeIcon: React.FC<{ size?: number; color?: string }> = ({
   color = COLORS.orange,
 }) => (
   <svg width={size} height={size} viewBox="0 0 96 64" fill="none">
-    <path
-      d="M6 28L20 18L34 24L48 32L40 42L28 38L14 44L6 28Z"
-      fill={color}
-    />
-    <path
-      d="M90 28L76 18L62 24L48 32L56 42L68 38L82 44L90 28Z"
-      fill={COLORS.ink}
-    />
+    <path d="M6 28L20 18L34 24L48 32L40 42L28 38L14 44L6 28Z" fill={color} />
+    <path d="M90 28L76 18L62 24L48 32L56 42L68 38L82 44L90 28Z" fill={COLORS.ink} />
     <rect x="42" y="28" width="12" height="12" rx="3" fill="white" />
   </svg>
 );
