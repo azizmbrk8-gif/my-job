@@ -1,16 +1,22 @@
+import { loadFont } from "@remotion/google-fonts/Cairo";
+
+const { fontFamily: cairoFamily } = loadFont("normal", {
+  weights: ["400", "600", "700", "800", "900"],
+});
+
 export const FPS = 30;
 export const WIDTH = 1080;
 export const HEIGHT = 1920;
 
 export const COLORS = {
-  orange: "#FF6B2C",
-  orangeDark: "#E85420",
-  orangeSoft: "#FFE4D3",
-  bg: "#FFF4ED",
+  orange: "#F2A22C",
+  orangeDark: "#E8861A",
+  orangeSoft: "#FFE8C8",
+  bg: "#FFF7ED",
   bgDark: "#1F1410",
   white: "#FFFFFF",
-  ink: "#1A1A1A",
-  inkSoft: "#2B2622",
+  ink: "#2E3849",
+  inkSoft: "#475569",
   muted: "#6B7280",
   line: "#E5E7EB",
   green: "#10B981",
@@ -18,8 +24,7 @@ export const COLORS = {
   amber: "#F59E0B",
 };
 
-export const FONT_STACK =
-  '"Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+export const FONT_STACK = `${cairoFamily}, "Cairo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`;
 
 export const sec = (s: number): number => Math.round(s * FPS);
 
