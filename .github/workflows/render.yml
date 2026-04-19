@@ -45,7 +45,12 @@ jobs:
           ls -lh public/music.mp3
 
       - name: Render video
-        run: npx remotion render ProChainAd out.mp4 --log=info
+        run: |
+          set -x
+          rm -f out.mp4
+          npx remotion render ProChainAd out.mp4 --log=verbose
+          ls -lh out.mp4
+          file out.mp4
 
       - name: Commit rendered MP4
         run: |
