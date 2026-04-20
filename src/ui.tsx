@@ -3,6 +3,7 @@ import {
   AbsoluteFill,
   Img,
   interpolate,
+  random,
   spring,
   staticFile,
   useCurrentFrame,
@@ -17,20 +18,135 @@ export const Logo: React.FC<{ width?: number }> = ({ width = 520 }) => (
   />
 );
 
-export const Headline: React.FC<{
-  children: React.ReactNode;
-  color?: string;
-  delay?: number;
-  size?: number;
-}> = ({ children, color = COLORS.ink, delay = 0, size = 92 }) => {
+export const PainBackground: React.FC = () => {
   const frame = useCurrentFrame();
-  const local = frame - delay;
-  const opacity = interpolate(local, [0, 8], [0, 1], {
+  const pulse = Math.sin(frame / 10) * 0.05 + 0.95;
+  return (
+    <AbsoluteFill
+      style={{
+        background: `radial-gradient(circle at 50% 40%, ${COLORS.painBgSoft} 0%, ${COLORS.painBg} 60%, #000 100%)`,
+        transform: `scale(${pulse})`,
+      }}
+    />
+  );
+};
+
+export const SolutionBackground: React.FC = () => (
+  <AbsoluteFill
+    style={{
+      background: `radial-gradient(circle at 50% 25%, ${COLORS.orangeSoft} 0%, ${COLORS.bg} 55%, #FFFFFF 100%)`,
+    }}
+  />
+);
+
+export const Grain: React.FC<{ opacity?: number }> = ({ opacity = 0.08 }) => {
+  const frame = useCurrentFrame();
+  const cells = Array.from({ length: 60 });
+  return (
+    <AbsoluteFill style={{ pointerEvents: "none", mixBlendMode: "overlay" }}>
+      {cells.map((_, i) => {
+        const x = random(`gx-${i}-${Math.floor(frame / 2)}`) * 100;
+        const y = random(`gy-${i}-${Math.floor(frame / 2)}`) * 100;
+        const s = random(`gs-${i}`) * 4 + 1;
+        return (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              left: `${x}%`,
+              top: `${y}%`,
+              width: s,
+              height: s,
+              background: "white",
+              opacity,
+              borderRadius: "50%",
+            }}
+          />
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
+
+export const Vignette: React.FC<{ strength?: number }> = ({
+  strength = 0.55,
+}) => (
+  <AbsoluteFill
+    style={{
+      pointerEvents: "none",
+      background: `radial-gradient(circle at 50% 50%, transparent 40%, rgba(0,0,0,${strength}) 100%)`,
+    }}
+  />
+);
+
+export const Shake: React.FC<{
+  children: React.ReactNode;
+  intensity?: number;
+  at: number;
+  duration?: number;
+}> = ({ children, intensity = 18, at, duration = 18 }) => {
+  const frame = useCurrentFrame();
+  const local = frame - at;
+  const active = local >= 0 && local < duration;
+  const decay = active ? 1 - local / duration : 0;
+  const dx = active ? (random(`sx-${local}`) - 0.5) * intensity * decay : 0;
+  const dy = active ? (random(`sy-${local}`) - 0.5) * intensity * decay : 0;
+  return (
+    <div
+      style={{
+        transform: `translate(${dx}px, ${dy}px)`,
+        width: "100%",
+        height: "100%",
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+
+export const FlashOverlay: React.FC<{ at: number; duration?: number }> = ({
+  at,
+  duration = 12,
+}) => {
+  const frame = useCurrentFrame();
+  const local = frame - at;
+  const op = interpolate(local, [0, 3, duration], [0, 1, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const translateY = interpolate(local, [0, 14], [40, 0], {
-    extrapolateLeft: "clamp",
+  return (
+    <AbsoluteFill
+      style={{ background: "white", opacity: op, pointerEvents: "none" }}
+    />
+  );
+};
+
+export const KineticText: React.FC<{
+  children: React.ReactNode;
+  delay?: number;
+  color?: string;
+  size?: number;
+  weight?: number;
+  align?: "center" | "right" | "left";
+  stroke?: string;
+}> = ({
+  children,
+  delay = 0,
+  color = COLORS.ink,
+  size = 110,
+  weight = 900,
+  align = "center",
+  stroke,
+}) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const s = spring({
+    frame: frame - delay,
+    fps,
+    config: { damping: 12, stiffness: 180, mass: 0.6 },
+  });
+  const scale = interpolate(s, [0, 1], [1.25, 1]);
+  const opacity = interpolate(s, [0, 0.5], [0, 1], {
     extrapolateRight: "clamp",
   });
   return (
@@ -38,14 +154,15 @@ export const Headline: React.FC<{
       style={{
         fontFamily: FONT_STACK,
         fontSize: size,
-        fontWeight: 900,
+        fontWeight: weight,
         color,
-        lineHeight: 1.25,
-        letterSpacing: -1,
-        textAlign: "center",
+        textAlign: align,
         direction: "rtl",
+        lineHeight: 1.1,
+        letterSpacing: -2,
+        transform: `scale(${scale})`,
         opacity,
-        transform: `translateY(${translateY}px)`,
+        WebkitTextStroke: stroke ? `3px ${stroke}` : undefined,
         padding: "0 60px",
       }}
     >
@@ -54,82 +171,213 @@ export const Headline: React.FC<{
   );
 };
 
-export const Caption: React.FC<{ children: React.ReactNode }> = ({
-  children,
+export const CountingNumber: React.FC<{
+  from?: number;
+  to: number;
+  delay?: number;
+  duration?: number;
+  suffix?: string;
+  prefix?: string;
+  color?: string;
+  size?: number;
+}> = ({
+  from = 0,
+  to,
+  delay = 0,
+  duration = 22,
+  suffix = "",
+  prefix = "",
+  color = COLORS.white,
+  size = 150,
 }) => {
   const frame = useCurrentFrame();
-  const opacity = interpolate(frame, [0, 6], [0, 1], {
-    extrapolateRight: "clamp",
+  const local = Math.max(0, frame - delay);
+  const t = Math.min(1, local / duration);
+  const eased = 1 - Math.pow(1 - t, 3);
+  const val = Math.round(from + (to - from) * eased);
+  return (
+    <span
+      style={{
+        fontFamily: FONT_STACK,
+        fontWeight: 900,
+        color,
+        fontSize: size,
+        letterSpacing: -2,
+        fontVariantNumeric: "tabular-nums",
+        direction: "ltr",
+        display: "inline-block",
+      }}
+    >
+      {prefix}
+      {val.toLocaleString("en-US")}
+      {suffix}
+    </span>
+  );
+};
+
+export const RiyalDamageCard: React.FC<{
+  day: string;
+  amount: number;
+  delay: number;
+}> = ({ day, amount, delay }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const s = spring({
+    frame: frame - delay,
+    fps,
+    config: { damping: 11, stiffness: 200, mass: 0.7 },
   });
+  const x = interpolate(s, [0, 1], [140, 0]);
+  const op = interpolate(s, [0, 0.6], [0, 1], { extrapolateRight: "clamp" });
   return (
     <div
       style={{
-        position: "absolute",
-        left: 0,
-        right: 0,
-        bottom: 130,
+        background: "rgba(127, 29, 29, 0.35)",
+        border: `3px solid ${COLORS.red}`,
+        borderRadius: 24,
+        padding: "28px 40px",
         display: "flex",
-        justifyContent: "center",
-        opacity,
-        padding: "0 60px",
+        justifyContent: "space-between",
+        alignItems: "center",
+        fontFamily: FONT_STACK,
+        direction: "rtl",
+        width: 820,
+        opacity: op,
+        transform: `translateX(${x}px)`,
+        boxShadow: "0 12px 40px rgba(239,68,68,0.25)",
+      }}
+    >
+      <span style={{ fontSize: 52, fontWeight: 700, color: COLORS.white }}>
+        {day}
+      </span>
+      <span
+        style={{
+          fontSize: 68,
+          fontWeight: 900,
+          color: COLORS.red,
+          fontVariantNumeric: "tabular-nums",
+          direction: "ltr",
+        }}
+      >
+        −{amount.toLocaleString("en-US")} ر.س
+      </span>
+    </div>
+  );
+};
+
+export const CommentCard: React.FC<{
+  handle: string;
+  text: string;
+  delay: number;
+  accent?: string;
+}> = ({ handle, text, delay, accent = COLORS.orange }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const s = spring({
+    frame: frame - delay,
+    fps,
+    config: { damping: 13, stiffness: 170, mass: 0.7 },
+  });
+  const y = interpolate(s, [0, 1], [40, 0]);
+  const op = interpolate(s, [0, 0.5], [0, 1], { extrapolateRight: "clamp" });
+  return (
+    <div
+      style={{
+        background: "rgba(255,255,255,0.96)",
+        borderRadius: 26,
+        padding: "24px 30px",
+        display: "flex",
+        gap: 18,
+        alignItems: "flex-start",
+        fontFamily: FONT_STACK,
+        direction: "rtl",
+        maxWidth: 820,
+        opacity: op,
+        transform: `translateY(${y}px)`,
+        boxShadow: "0 18px 40px rgba(0,0,0,0.28)",
       }}
     >
       <div
         style={{
-          background: "rgba(15, 23, 42, 0.88)",
+          width: 64,
+          height: 64,
+          borderRadius: "50%",
+          background: accent,
+          flexShrink: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           color: "white",
-          padding: "28px 42px",
-          borderRadius: 28,
-          fontFamily: FONT_STACK,
-          fontSize: 46,
-          fontWeight: 700,
-          textAlign: "center",
-          lineHeight: 1.35,
-          maxWidth: "100%",
-          direction: "rtl",
-          boxShadow: "0 24px 60px rgba(0,0,0,0.25)",
+          fontWeight: 900,
+          fontSize: 30,
         }}
       >
-        {children}
+        {handle.slice(0, 1).toUpperCase()}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <span style={{ fontWeight: 800, fontSize: 30, color: COLORS.ink }}>
+          {handle}
+        </span>
+        <span
+          style={{
+            fontWeight: 500,
+            fontSize: 34,
+            color: COLORS.inkSoft,
+            lineHeight: 1.35,
+          }}
+        >
+          {text}
+        </span>
       </div>
     </div>
   );
 };
 
-export const SoftBackground: React.FC = () => (
-  <AbsoluteFill
-    style={{
-      background: `radial-gradient(circle at 50% 20%, ${COLORS.orangeSoft} 0%, ${COLORS.bg} 55%, #FFFFFF 100%)`,
-    }}
-  />
-);
-
-export const FloatingShapes: React.FC = () => {
+export const CheckRow: React.FC<{
+  text: string;
+  delay: number;
+  color?: string;
+}> = ({ text, delay, color = COLORS.green }) => {
   const frame = useCurrentFrame();
-  const drift = (i: number) => Math.sin((frame / 30 + i) * 0.9) * 18;
+  const { fps } = useVideoConfig();
+  const s = spring({
+    frame: frame - delay,
+    fps,
+    config: { damping: 10, stiffness: 220, mass: 0.6 },
+  });
+  const scale = interpolate(s, [0, 1], [0.6, 1]);
+  const op = interpolate(s, [0, 0.5], [0, 1], { extrapolateRight: "clamp" });
   return (
-    <AbsoluteFill style={{ pointerEvents: "none" }}>
-      {[
-        { x: 80, y: 220, size: 110, color: COLORS.orangeSoft, i: 0 },
-        { x: 880, y: 360, size: 70, color: COLORS.orange, i: 1, op: 0.18 },
-        { x: 120, y: 1500, size: 140, color: COLORS.orangeSoft, i: 2 },
-        { x: 860, y: 1640, size: 90, color: COLORS.orange, i: 3, op: 0.15 },
-      ].map((s) => (
-        <div
-          key={s.i}
-          style={{
-            position: "absolute",
-            left: s.x,
-            top: s.y + drift(s.i),
-            width: s.size,
-            height: s.size,
-            borderRadius: "50%",
-            background: s.color,
-            opacity: s.op ?? 1,
-          }}
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 24,
+        background: "white",
+        borderRadius: 22,
+        padding: "22px 34px",
+        fontFamily: FONT_STACK,
+        direction: "rtl",
+        boxShadow: "0 14px 30px rgba(0,0,0,0.12)",
+        transform: `scale(${scale})`,
+        opacity: op,
+        width: 820,
+      }}
+    >
+      <svg width="68" height="68" viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="30" fill={color} />
+        <path
+          d="M18 33L28 43L46 24"
+          stroke="white"
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
-      ))}
-    </AbsoluteFill>
+      </svg>
+      <span style={{ fontSize: 48, fontWeight: 800, color: COLORS.ink }}>
+        {text}
+      </span>
+    </div>
   );
 };
 
@@ -148,7 +396,7 @@ export const PhoneFrame: React.FC<{
         background: "#0E0E10",
         padding: 18 * scale,
         boxShadow:
-          "0 60px 120px rgba(0,0,0,0.35), 0 8px 24px rgba(0,0,0,0.25)",
+          "0 60px 120px rgba(0,0,0,0.45), 0 8px 24px rgba(0,0,0,0.35)",
         position: "relative",
       }}
     >
@@ -193,206 +441,214 @@ export const PhoneScreenshot: React.FC<{ src: string }> = ({ src }) => (
   />
 );
 
-export const SpringIn: React.FC<{
+export const TapPulse: React.FC<{
+  x: number;
+  y: number;
+  delay: number;
+  color?: string;
+}> = ({ x, y, delay, color = COLORS.orange }) => {
+  const frame = useCurrentFrame();
+  const local = frame - delay;
+  const t = Math.max(0, Math.min(1, local / 18));
+  const size = interpolate(t, [0, 1], [20, 180]);
+  const op = interpolate(t, [0, 0.2, 1], [0, 0.7, 0]);
+  if (local < 0 || local > 18) return null;
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: x - size / 2,
+        top: y - size / 2,
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        border: `6px solid ${color}`,
+        opacity: op,
+      }}
+    />
+  );
+};
+
+export const PulseBadge: React.FC<{
   children: React.ReactNode;
-  delay?: number;
-  from?: number;
-  damping?: number;
-}> = ({ children, delay = 0, from = 0.6, damping = 14 }) => {
+  bg?: string;
+  color?: string;
+}> = ({ children, bg = COLORS.red, color = COLORS.white }) => {
+  const frame = useCurrentFrame();
+  const pulse = 1 + Math.sin(frame / 5) * 0.04;
+  return (
+    <div
+      style={{
+        background: bg,
+        color,
+        fontFamily: FONT_STACK,
+        fontWeight: 900,
+        fontSize: 46,
+        padding: "18px 38px",
+        borderRadius: 999,
+        direction: "rtl",
+        transform: `scale(${pulse})`,
+        boxShadow: "0 14px 36px rgba(0,0,0,0.25)",
+        display: "inline-block",
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+
+export const SparkBurst: React.FC<{ at: number; color?: string }> = ({
+  at,
+  color = COLORS.orange,
+}) => {
+  const frame = useCurrentFrame();
+  const local = frame - at;
+  if (local < 0 || local > 28) return null;
+  const t = local / 28;
+  const rays = 12;
+  return (
+    <AbsoluteFill
+      style={{
+        pointerEvents: "none",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {Array.from({ length: rays }).map((_, i) => {
+        const angle = (i / rays) * 360;
+        const len = interpolate(t, [0, 0.4, 1], [0, 420, 540]);
+        const op = interpolate(t, [0, 0.2, 1], [0, 1, 0]);
+        return (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              width: 6,
+              height: len,
+              background: color,
+              transformOrigin: "50% 0%",
+              transform: `rotate(${angle}deg) translateY(0)`,
+              opacity: op,
+              borderRadius: 3,
+            }}
+          />
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
+
+export const CityStrip: React.FC<{ cities: string[]; delay: number }> = ({
+  cities,
+  delay,
+}) => {
+  const frame = useCurrentFrame();
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap: 28,
+        justifyContent: "center",
+        flexWrap: "wrap",
+        fontFamily: FONT_STACK,
+        direction: "rtl",
+      }}
+    >
+      {cities.map((c, i) => {
+        const local = frame - delay - i * 6;
+        const op = interpolate(local, [0, 8], [0, 1], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        });
+        const y = interpolate(local, [0, 10], [20, 0], {
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        });
+        return (
+          <span
+            key={c}
+            style={{
+              fontSize: 52,
+              fontWeight: 800,
+              color: COLORS.ink,
+              opacity: op,
+              transform: `translateY(${y}px)`,
+              background: "rgba(255,255,255,0.85)",
+              padding: "12px 28px",
+              borderRadius: 18,
+              boxShadow: "0 10px 24px rgba(0,0,0,0.08)",
+            }}
+          >
+            {c}
+          </span>
+        );
+      })}
+    </div>
+  );
+};
+
+export const MissedCallsChip: React.FC<{ count: number; delay: number }> = ({
+  count,
+  delay,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const s = spring({
     frame: frame - delay,
     fps,
-    config: { damping, stiffness: 140, mass: 0.7 },
+    config: { damping: 10, stiffness: 220, mass: 0.5 },
   });
-  const scale = interpolate(s, [0, 1], [from, 1]);
-  const opacity = interpolate(s, [0, 1], [0, 1]);
+  const scale = interpolate(s, [0, 1], [0.4, 1]);
+  const op = interpolate(s, [0, 0.5], [0, 1], { extrapolateRight: "clamp" });
   return (
-    <div style={{ transform: `scale(${scale})`, opacity }}>{children}</div>
+    <div
+      style={{
+        background: COLORS.red,
+        color: "white",
+        padding: "14px 28px",
+        borderRadius: 999,
+        fontFamily: FONT_STACK,
+        fontWeight: 900,
+        fontSize: 38,
+        direction: "rtl",
+        transform: `scale(${scale})`,
+        opacity: op,
+        boxShadow: "0 12px 30px rgba(239,68,68,0.5)",
+      }}
+    >
+      {count} مكالمات فايتة
+    </div>
   );
 };
 
-export const Notification: React.FC<{
-  title: string;
-  body: string;
-  color: string;
-  delay: number;
-}> = ({ title, body, color, delay }) => {
+export const POVTag: React.FC<{
+  children: React.ReactNode;
+  delay?: number;
+}> = ({ children, delay = 0 }) => {
   const frame = useCurrentFrame();
-  const local = frame - delay;
-  const op = interpolate(local, [0, 6], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const ty = interpolate(local, [0, 10], [-30, 0], {
+  const op = interpolate(frame - delay, [0, 6], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
   return (
     <div
       style={{
-        background: "rgba(255,255,255,0.96)",
-        borderRadius: 22,
-        padding: "20px 24px",
-        boxShadow: "0 18px 40px rgba(0,0,0,0.18)",
-        opacity: op,
-        transform: `translateY(${ty}px)`,
-        display: "flex",
-        gap: 18,
-        alignItems: "center",
+        display: "inline-block",
+        background: "rgba(255,255,255,0.12)",
+        border: "2px solid rgba(255,255,255,0.3)",
+        color: "white",
         fontFamily: FONT_STACK,
+        fontWeight: 800,
+        fontSize: 32,
+        padding: "10px 22px",
+        borderRadius: 14,
         direction: "rtl",
+        opacity: op,
+        letterSpacing: 1,
       }}
     >
-      <div
-        style={{
-          width: 56,
-          height: 56,
-          borderRadius: 14,
-          background: color,
-          flexShrink: 0,
-        }}
-      />
-      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        <span style={{ fontWeight: 800, fontSize: 28, color: COLORS.ink }}>
-          {title}
-        </span>
-        <span style={{ fontWeight: 500, fontSize: 24, color: COLORS.muted }}>
-          {body}
-        </span>
-      </div>
+      {children}
     </div>
   );
 };
-
-export const CheckIcon: React.FC<{ size?: number; color?: string }> = ({
-  size = 64,
-  color = COLORS.green,
-}) => (
-  <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
-    <circle cx="32" cy="32" r="30" fill={color} />
-    <path
-      d="M18 33L28 43L46 24"
-      stroke="white"
-      strokeWidth="6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-export const CrossIcon: React.FC<{ size?: number; color?: string }> = ({
-  size = 64,
-  color = COLORS.red,
-}) => (
-  <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
-    <circle cx="32" cy="32" r="30" fill={color} />
-    <path
-      d="M22 22L42 42M42 22L22 42"
-      stroke="white"
-      strokeWidth="6"
-      strokeLinecap="round"
-    />
-  </svg>
-);
-
-export const ClockIcon: React.FC<{ size?: number; color?: string }> = ({
-  size = 64,
-  color = COLORS.amber,
-}) => (
-  <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
-    <circle cx="32" cy="32" r="30" fill={color} />
-    <path
-      d="M32 16V32L42 40"
-      stroke="white"
-      strokeWidth="6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-export const ShieldIcon: React.FC<{ size?: number; color?: string }> = ({
-  size = 64,
-  color = COLORS.orange,
-}) => (
-  <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
-    <path
-      d="M32 4L56 14V32C56 46 44 56 32 60C20 56 8 46 8 32V14L32 4Z"
-      fill={color}
-    />
-    <path
-      d="M22 33L29 40L43 26"
-      stroke="white"
-      strokeWidth="5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-export const SparkIcon: React.FC<{ size?: number; color?: string }> = ({
-  size = 64,
-  color = COLORS.orange,
-}) => (
-  <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
-    <path
-      d="M32 6L37 26L57 32L37 38L32 58L27 38L7 32L27 26L32 6Z"
-      fill={color}
-    />
-  </svg>
-);
-
-export const RocketIcon: React.FC<{ size?: number; color?: string }> = ({
-  size = 64,
-  color = COLORS.orange,
-}) => (
-  <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
-    <path
-      d="M32 4C44 14 50 26 50 38L40 46L24 46L14 38C14 26 20 14 32 4Z"
-      fill={color}
-    />
-    <circle cx="32" cy="26" r="6" fill="white" />
-    <path
-      d="M14 50L22 42M50 50L42 42"
-      stroke={color}
-      strokeWidth="5"
-      strokeLinecap="round"
-    />
-  </svg>
-);
-
-export const TruckIcon: React.FC<{ size?: number; color?: string }> = ({
-  size = 80,
-  color = COLORS.orange,
-}) => (
-  <svg width={size} height={size} viewBox="0 0 100 64" fill="none">
-    <rect x="2" y="14" width="56" height="34" rx="6" fill={color} />
-    <path d="M58 22H78L94 38V48H58V22Z" fill={color} opacity="0.85" />
-    <rect
-      x="64"
-      y="26"
-      width="16"
-      height="12"
-      rx="2"
-      fill="white"
-      opacity="0.8"
-    />
-    <circle cx="22" cy="52" r="9" fill={COLORS.ink} />
-    <circle cx="22" cy="52" r="3.5" fill="white" />
-    <circle cx="76" cy="52" r="9" fill={COLORS.ink} />
-    <circle cx="76" cy="52" r="3.5" fill="white" />
-  </svg>
-);
-
-export const HandshakeIcon: React.FC<{ size?: number; color?: string }> = ({
-  size = 96,
-  color = COLORS.orange,
-}) => (
-  <svg width={size} height={size} viewBox="0 0 96 64" fill="none">
-    <path d="M6 28L20 18L34 24L48 32L40 42L28 38L14 44L6 28Z" fill={color} />
-    <path d="M90 28L76 18L62 24L48 32L56 42L68 38L82 44L90 28Z" fill={COLORS.ink} />
-    <rect x="42" y="28" width="12" height="12" rx="3" fill="white" />
-  </svg>
-);

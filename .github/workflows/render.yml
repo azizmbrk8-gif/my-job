@@ -47,16 +47,14 @@ jobs:
       - name: Ensure Remotion Chrome Headless Shell
         run: npx remotion browser ensure || true
 
-      - name: Ensure background music exists
+      - name: Build sound-design music track
         run: |
           set -x
-          mkdir -p public
-          if [ ! -f public/music.mp3 ]; then
-            echo "== generating 45s silent MP3 with ffmpeg =="
+          chmod +x scripts/build-music.sh
+          if ! scripts/build-music.sh; then
+            echo "== build-music.sh failed — falling back to silent track =="
             ffmpeg -y -f lavfi -i anullsrc=r=44100:cl=stereo \
               -t 45 -q:a 9 -acodec libmp3lame public/music.mp3
-          else
-            echo "== public/music.mp3 already present =="
           fi
           ls -lh public/music.mp3
           file public/music.mp3

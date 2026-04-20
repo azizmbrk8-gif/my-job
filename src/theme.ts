@@ -13,15 +13,21 @@ export const COLORS = {
   orangeDark: "#E8861A",
   orangeSoft: "#FFE8C8",
   bg: "#FFF7ED",
-  bgDark: "#1F1410",
   white: "#FFFFFF",
-  ink: "#2E3849",
-  inkSoft: "#475569",
-  muted: "#6B7280",
+  ink: "#0F172A",
+  inkSoft: "#1E293B",
+  muted: "#64748B",
   line: "#E5E7EB",
   green: "#10B981",
-  red: "#EF4444",
   amber: "#F59E0B",
+
+  painBg: "#0A0A0F",
+  painBgSoft: "#1A0E13",
+  red: "#EF4444",
+  redDeep: "#7F1D1D",
+  crimson: "#B91C1C",
+
+  saudi: "#165E3D",
 };
 
 export const FONT_STACK = `${cairoFamily}, "Cairo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`;
@@ -30,13 +36,11 @@ export const sec = (s: number): number => Math.round(s * FPS);
 
 export const SCENE_DURATIONS = {
   s1: sec(3),
-  s2: sec(5),
-  s3: sec(4),
+  s2: sec(7),
+  s3: sec(8),
   s4: sec(10),
-  s5: sec(8),
+  s5: sec(10),
   s6: sec(7),
-  s7: sec(5),
-  s8: sec(3),
 } as const;
 
 export const TOTAL_DURATION =
@@ -45,6 +49,4 @@ export const TOTAL_DURATION =
   SCENE_DURATIONS.s3 +
   SCENE_DURATIONS.s4 +
   SCENE_DURATIONS.s5 +
-  SCENE_DURATIONS.s6 +
-  SCENE_DURATIONS.s7 +
-  SCENE_DURATIONS.s8;
+  SCENE_DURATIONS.s6;
