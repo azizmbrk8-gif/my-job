@@ -45,50 +45,53 @@ ffmpeg -y -f lavfi -i "sine=frequency=1980:duration=0.5" \
   -af "volume=0.55,afade=t=out:st=0.05:d=0.45" \
   -ar 44100 "$TMP/ching2.wav" -loglevel error
 
-# Tense bass rumble: 55Hz + 82.5Hz with light tremolo, 0-12s only (pain)
-ffmpeg -y -f lavfi -i "sine=frequency=55:duration=12" \
-  -f lavfi -i "sine=frequency=82.5:duration=12" \
-  -filter_complex "[0]volume=0.18[a];[1]volume=0.08[b];[a][b]amix=inputs=2:duration=longest:normalize=0,tremolo=f=0.8:d=0.35,afade=t=out:st=11:d=1" \
+# Tense bass rumble: 55Hz + 82.5Hz with light tremolo, 0-10s (hook + pain)
+ffmpeg -y -f lavfi -i "sine=frequency=55:duration=10" \
+  -f lavfi -i "sine=frequency=82.5:duration=10" \
+  -filter_complex "[0]volume=0.18[a];[1]volume=0.08[b];[a][b]amix=inputs=2:duration=longest:normalize=0,tremolo=f=0.8:d=0.35,afade=t=out:st=9:d=1" \
   -ar 44100 "$TMP/tense.wav" -loglevel error
 
-# Uplifting pad: 220Hz + 330Hz (fifth) fading in from 10s
+# Uplifting pad: 220Hz + 330Hz (fifth) from reveal onward (10s-45s)
 ffmpeg -y -f lavfi -i "sine=frequency=220:duration=35" \
   -f lavfi -i "sine=frequency=330:duration=35" \
   -filter_complex "[0]volume=0.07[a];[1]volume=0.05[b];[a][b]amix=inputs=2:duration=longest:normalize=0,afade=t=in:st=0:d=2,afade=t=out:st=33:d=2" \
   -ar 44100 "$TMP/pad.wav" -loglevel error
 
-# Kick pulse (every 0.6s from 12s to 38s) — simple rhythm
-# Build a single kick then loop via aevalsrc timing using concat
-ffmpeg -y -f lavfi -i "sine=frequency=60:duration=0.12" \
-  -af "volume=0.9,afade=t=out:st=0.02:d=0.1" \
-  -ar 44100 "$TMP/kick.wav" -loglevel error
-
-# Low background bed for demo (18-38s)
-ffmpeg -y -f lavfi -i "sine=frequency=110:duration=20" \
-  -af "volume=0.06,afade=t=in:st=0:d=1,afade=t=out:st=18:d=2" \
+# Low background bed for demo+pills (15-37s)
+ffmpeg -y -f lavfi -i "sine=frequency=110:duration=22" \
+  -af "volume=0.06,afade=t=in:st=0:d=1,afade=t=out:st=20:d=2" \
   -ar 44100 "$TMP/bed.wav" -loglevel error
 
 # ---------- final mix ----------
+# Scene boundaries: s1=0-3, s2=3-10, s3=10-15, s4=15-27, s5=27-37, s6=37-45
 # Timeline (ms):
-#   0     hook starts (tense bass in)
-#   1000  phone buzz impact
-#   3000  scene 2 begins
-#   3600  card 1 boom (الجمعة)
-#   4600  card 2 boom (السبت)
-#   5600  card 3 boom (الأحد)
-#   6600  total counter hit (bigger)
-#   9900  whoosh before transition
-#   10000 discovery ding
-#   12000 logo reveal — double boom + ding
-#  18000 demo start whoosh
-#  20000, 22000, 24000, 26000 tap dings
-#  28000 climax whoosh
-#  30000 "الحين أنام مرتاح" impact
-#  38000 CTA whoosh
-#  40000 "شهر مجاني" big boom
-#  42000 ching1
-#  42600 ching2
-#  44500 final boom
+#   0     s1 Hook starts (tense bass in)
+#   200   "نواقصك" impact
+#   700   "في مطعمك" impact
+#   1400  "نار" big boom
+#   3000  s2 Pain begins
+#   3700  damage card 1 boom (الجمعة)
+#   4700  damage card 2 boom (السبت)
+#   5700  damage card 3 boom (الأحد)
+#   7000  total SAR counter big hit
+#   9500  whoosh transition
+#  10000  s3 Reveal — big boom + ding (logo sweep)
+#  11000  logo slam boom
+#  13000  tagline ding
+#  15000  s4 Demo start whoosh
+#  15200  word 1 "ابحث" tap ding
+#  17900  word 2 "اطلب" tap ding
+#  20500  word 3 "تابع" tap ding
+#  23200  word 4 "استلم" tap ding
+#  26300  bottom callout ding
+#  27000  s5 Pills start whoosh
+#  29300,30000,30700,31400,32000  pill cascade dings
+#  37000  s6 End frame — flash boom
+#  37800  logo reveal boom
+#  40000  scarcity pill impact
+#  41500  CTA ching1
+#  42100  CTA ching2
+#  43500  final boom
 
 ffmpeg -y \
   -i "$TMP/tense.wav" \
@@ -96,52 +99,68 @@ ffmpeg -y \
   -i "$TMP/bed.wav" \
   -i "$TMP/impact.wav" \
   -i "$TMP/impact.wav" \
+  -i "$TMP/boom.wav" \
   -i "$TMP/impact.wav" \
   -i "$TMP/impact.wav" \
-  -i "$TMP/boom.wav" \
-  -i "$TMP/whoosh.wav" \
-  -i "$TMP/ding.wav" \
-  -i "$TMP/boom.wav" \
-  -i "$TMP/boom.wav" \
-  -i "$TMP/ding.wav" \
-  -i "$TMP/whoosh.wav" \
-  -i "$TMP/ding.wav" \
-  -i "$TMP/ding.wav" \
-  -i "$TMP/ding.wav" \
-  -i "$TMP/ding.wav" \
-  -i "$TMP/whoosh.wav" \
+  -i "$TMP/impact.wav" \
   -i "$TMP/boom.wav" \
   -i "$TMP/whoosh.wav" \
   -i "$TMP/boom.wav" \
+  -i "$TMP/ding.wav" \
+  -i "$TMP/boom.wav" \
+  -i "$TMP/ding.wav" \
+  -i "$TMP/whoosh.wav" \
+  -i "$TMP/ding.wav" \
+  -i "$TMP/ding.wav" \
+  -i "$TMP/ding.wav" \
+  -i "$TMP/ding.wav" \
+  -i "$TMP/ding.wav" \
+  -i "$TMP/whoosh.wav" \
+  -i "$TMP/ding.wav" \
+  -i "$TMP/ding.wav" \
+  -i "$TMP/ding.wav" \
+  -i "$TMP/ding.wav" \
+  -i "$TMP/ding.wav" \
+  -i "$TMP/boom.wav" \
+  -i "$TMP/boom.wav" \
+  -i "$TMP/impact.wav" \
   -i "$TMP/ching1.wav" \
   -i "$TMP/ching2.wav" \
   -i "$TMP/boom.wav" \
   -filter_complex "\
     [1]adelay=10000|10000[pad]; \
-    [2]adelay=18000|18000[bed]; \
-    [3]adelay=1000|1000[s3]; \
-    [4]adelay=3600|3600[s4]; \
-    [5]adelay=4600|4600[s5]; \
-    [6]adelay=5600|5600[s6]; \
-    [7]adelay=6600|6600,volume=1.3[s7]; \
-    [8]adelay=9900|9900[s8]; \
-    [9]adelay=10000|10000[s9]; \
-    [10]adelay=12000|12000,volume=1.2[s10]; \
-    [11]adelay=12300|12300,volume=1.1[s11]; \
-    [12]adelay=12200|12200[s12]; \
-    [13]adelay=18000|18000[s13]; \
-    [14]adelay=20000|20000[s14]; \
-    [15]adelay=22000|22000[s15]; \
-    [16]adelay=24000|24000[s16]; \
-    [17]adelay=26000|26000[s17]; \
-    [18]adelay=28000|28000[s18]; \
-    [19]adelay=30000|30000,volume=1.3[s19]; \
-    [20]adelay=38000|38000[s20]; \
-    [21]adelay=40000|40000,volume=1.4[s21]; \
-    [22]adelay=42000|42000[s22]; \
-    [23]adelay=42600|42600[s23]; \
-    [24]adelay=44500|44500,volume=1.5[s24]; \
-    [0][pad][bed][s3][s4][s5][s6][s7][s8][s9][s10][s11][s12][s13][s14][s15][s16][s17][s18][s19][s20][s21][s22][s23][s24]amix=inputs=25:duration=longest:normalize=0,dynaudnorm=p=0.75:m=10,alimiter=limit=0.95" \
+    [2]adelay=15000|15000[bed]; \
+    [3]adelay=200|200,volume=0.9[s3]; \
+    [4]adelay=700|700,volume=1.0[s4]; \
+    [5]adelay=1400|1400,volume=1.3[s5]; \
+    [6]adelay=3700|3700[s6]; \
+    [7]adelay=4700|4700[s7]; \
+    [8]adelay=5700|5700[s8]; \
+    [9]adelay=7000|7000,volume=1.4[s9]; \
+    [10]adelay=9500|9500,volume=1.1[s10]; \
+    [11]adelay=10000|10000,volume=1.3[s11]; \
+    [12]adelay=10300|10300[s12]; \
+    [13]adelay=11000|11000,volume=1.2[s13]; \
+    [14]adelay=13000|13000[s14]; \
+    [15]adelay=15000|15000,volume=1.1[s15]; \
+    [16]adelay=15200|15200[s16]; \
+    [17]adelay=17900|17900[s17]; \
+    [18]adelay=20500|20500[s18]; \
+    [19]adelay=23200|23200[s19]; \
+    [20]adelay=26300|26300[s20]; \
+    [21]adelay=27000|27000[s21]; \
+    [22]adelay=29300|29300[s22]; \
+    [23]adelay=30000|30000[s23]; \
+    [24]adelay=30700|30700[s24]; \
+    [25]adelay=31400|31400[s25]; \
+    [26]adelay=32000|32000[s26]; \
+    [27]adelay=37000|37000,volume=1.4[s27]; \
+    [28]adelay=37800|37800,volume=1.2[s28]; \
+    [29]adelay=40000|40000,volume=1.2[s29]; \
+    [30]adelay=41500|41500[s30]; \
+    [31]adelay=42100|42100[s31]; \
+    [32]adelay=43500|43500,volume=1.5[s32]; \
+    [0][pad][bed][s3][s4][s5][s6][s7][s8][s9][s10][s11][s12][s13][s14][s15][s16][s17][s18][s19][s20][s21][s22][s23][s24][s25][s26][s27][s28][s29][s30][s31][s32]amix=inputs=33:duration=longest:normalize=0,dynaudnorm=p=0.75:m=10,alimiter=limit=0.95" \
   -t 45 -ar 44100 -ac 2 -b:a 192k "$OUT" -loglevel error
 
 rm -rf "$TMP"

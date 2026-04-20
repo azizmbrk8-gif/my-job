@@ -9,43 +9,46 @@ import {
 } from "remotion";
 import { COLORS, FONT_STACK } from "./theme";
 import {
-  CheckRow,
-  CityStrip,
-  CommentCard,
+  BrushSwoosh,
   CountingNumber,
+  FloatingPhoneMockup,
   FlashOverlay,
-  Grain,
-  KineticText,
+  FlyingReceipt,
   Logo,
-  MissedCallsChip,
-  PainBackground,
-  PhoneFrame,
-  PhoneScreenshot,
-  POVTag,
-  PulseBadge,
+  MiniSwoosh,
+  PillBadge,
+  PromisePill,
   RiyalDamageCard,
   Shake,
-  SolutionBackground,
-  SparkBurst,
-  TapPulse,
-  Vignette,
+  SlamHeadline,
+  SoftboxGlow,
+  SoftboxStand,
+  StudioBackground,
 } from "./ui";
 
 // ====================================================================
-// SCENE 1 — HOOK (3s)
-// "يا معلّم... موردك ما ردّ من الصبح، صح؟"
+// SCENE 1 — HOOK (3s = 90f)
+// "نواقصك في مطعمك… نار 🔥"
 // ====================================================================
 export const Scene1Hook: React.FC = () => {
   const frame = useCurrentFrame();
-  const buzz = Math.sin(frame / 2) * (frame < 30 ? 0 : 14);
   return (
     <AbsoluteFill>
-      <PainBackground />
-      <Grain opacity={0.1} />
-      <Vignette strength={0.7} />
-      <AbsoluteFill style={{ padding: "120px 60px 60px" }}>
-        <POVTag delay={4}>POV: الساعة ٧ الصبح</POVTag>
-      </AbsoluteFill>
+      <StudioBackground />
+      <SoftboxGlow x={120} y={200} size={900} opacity={0.6} />
+      <SoftboxStand x={60} y={1500} size={220} opacity={0.12} />
+
+      {/* Brush swoosh sweeping behind text */}
+      <div style={{ position: "absolute", left: -60, top: 200 }}>
+        <BrushSwoosh
+          delay={2}
+          width={900}
+          height={1600}
+          color={COLORS.orangeBright}
+          variant={1}
+          rotation={-8}
+        />
+      </div>
 
       <AbsoluteFill
         style={{
@@ -53,52 +56,80 @@ export const Scene1Hook: React.FC = () => {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: 60,
+          gap: 30,
+          padding: "0 40px",
         }}
       >
-        <Shake at={0} intensity={28} duration={14}>
-          <div
-            style={{
-              transform: `translate(${buzz}px, ${buzz * 0.4}px) rotate(${
-                buzz * 0.25
-              }deg)`,
-              fontSize: 260,
-              lineHeight: 1,
-            }}
-          >
-            📞
+        <SlamHeadline delay={6} size={170} color={COLORS.ink} weight={900}>
+          نواقصك
+        </SlamHeadline>
+        <Shake at={20} intensity={14} duration={12}>
+          <SlamHeadline delay={20} size={170} color={COLORS.brandRed} weight={900}>
+            في مطعمك…
+          </SlamHeadline>
+        </Shake>
+        <Shake at={42} intensity={22} duration={16}>
+          <div style={{ position: "relative" }}>
+            <SlamHeadline delay={42} size={250} color={COLORS.orangeBright} weight={900}>
+              نار 🔥
+            </SlamHeadline>
+            <div style={{ position: "absolute", left: 80, bottom: -30 }}>
+              <MiniSwoosh delay={60} width={420} color={COLORS.orangeBright} rotation={-5} />
+            </div>
           </div>
         </Shake>
-
-        <KineticText delay={8} size={140} color={COLORS.white}>
-          يا معلّم...
-        </KineticText>
-        <KineticText
-          delay={32}
-          size={96}
-          color={COLORS.white}
-          weight={800}
-        >
-          موردك ما ردّ من الصبح، صح؟
-        </KineticText>
-        <div style={{ marginTop: 20 }}>
-          <MissedCallsChip count={7} delay={56} />
-        </div>
       </AbsoluteFill>
+
+      {/* Subtle vignette for cinematic feel */}
+      <AbsoluteFill
+        style={{
+          background: `radial-gradient(circle at 50% 50%, transparent 50%, rgba(0,0,0,${interpolate(
+            frame,
+            [0, 30],
+            [0, 0.25],
+            { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+          )}) 100%)`,
+          pointerEvents: "none",
+        }}
+      />
     </AbsoluteFill>
   );
 };
 
 // ====================================================================
-// SCENE 2 — PAIN IN RIYAL (7s = 210f)
-// "شوف كم خسرت..." + 3 cards + big total
+// SCENE 2 — PAIN (7s = 210f)
+// "الموردين يخذلونك؟" + 3 SAR damage cards + total
 // ====================================================================
 export const Scene2Pain: React.FC = () => {
   return (
     <AbsoluteFill>
-      <PainBackground />
-      <Grain opacity={0.1} />
-      <Vignette strength={0.6} />
+      <StudioBackground dark />
+      <SoftboxGlow x={140} y={120} size={700} opacity={0.25} />
+
+      {/* Background brush swoosh in red */}
+      <div style={{ position: "absolute", right: -80, top: 100 }}>
+        <BrushSwoosh
+          delay={4}
+          width={700}
+          height={1400}
+          color={COLORS.brandRedDeep}
+          variant={2}
+          rotation={6}
+        />
+      </div>
+
+      {/* Flying receipts in background */}
+      {Array.from({ length: 6 }).map((_, i) => (
+        <FlyingReceipt
+          key={i}
+          delay={10 + i * 3}
+          startX={random(`fx${i}`) * 900 + 50}
+          startY={random(`fy${i}`) * 1700 + 100}
+          driftX={(random(`fdx${i}`) - 0.5) * 120}
+          driftY={-150 - random(`fdy${i}`) * 200}
+          rotate={(random(`frr${i}`) - 0.5) * 60}
+        />
+      ))}
 
       <AbsoluteFill
         style={{
@@ -106,23 +137,23 @@ export const Scene2Pain: React.FC = () => {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "flex-start",
-          padding: "180px 0 60px",
+          padding: "150px 0 0",
           gap: 28,
         }}
       >
-        <KineticText delay={0} size={88} color={COLORS.white}>
-          شوف كم خسرت...
-        </KineticText>
+        <SlamHeadline delay={0} size={110} color={COLORS.white} weight={900}>
+          الموردين يخذلونك؟
+        </SlamHeadline>
 
-        <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 22 }}>
-          <Shake at={18} intensity={16} duration={10}>
-            <RiyalDamageCard day="الجمعة" amount={2400} delay={18} />
+        <div style={{ marginTop: 30, display: "flex", flexDirection: "column", gap: 22 }}>
+          <Shake at={22} intensity={14} duration={10}>
+            <RiyalDamageCard day="الجمعة" amount={2400} delay={22} />
           </Shake>
-          <Shake at={48} intensity={16} duration={10}>
-            <RiyalDamageCard day="السبت" amount={1800} delay={48} />
+          <Shake at={52} intensity={14} duration={10}>
+            <RiyalDamageCard day="السبت" amount={1800} delay={52} />
           </Shake>
-          <Shake at={78} intensity={16} duration={10}>
-            <RiyalDamageCard day="الأحد" amount={3200} delay={78} />
+          <Shake at={82} intensity={14} duration={10}>
+            <RiyalDamageCard day="الأحد" amount={3200} delay={82} />
           </Shake>
         </div>
 
@@ -130,21 +161,28 @@ export const Scene2Pain: React.FC = () => {
           <div
             style={{
               fontFamily: FONT_STACK,
-              fontSize: 46,
+              fontSize: 44,
               fontWeight: 700,
-              color: COLORS.muted,
+              color: COLORS.line,
               marginBottom: 6,
             }}
           >
-            المجموع في ٣ أيام
+            خسرت في ٣ أيام
           </div>
-          <Shake at={118} intensity={22} duration={14}>
-            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: 18 }}>
+          <Shake at={120} intensity={20} duration={14}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "baseline",
+                justifyContent: "center",
+                gap: 18,
+              }}
+            >
               <CountingNumber
                 to={7400}
-                delay={118}
+                delay={120}
                 duration={32}
-                color={COLORS.red}
+                color={COLORS.brandRed}
                 size={180}
                 prefix="−"
               />
@@ -153,7 +191,7 @@ export const Scene2Pain: React.FC = () => {
                   fontFamily: FONT_STACK,
                   fontSize: 70,
                   fontWeight: 900,
-                  color: COLORS.red,
+                  color: COLORS.brandRed,
                 }}
               >
                 ر.س
@@ -162,13 +200,10 @@ export const Scene2Pain: React.FC = () => {
           </Shake>
         </div>
 
-        <div style={{ marginTop: 20 }}>
-          <CommentCard
-            handle="abu_saleh_resto"
-            text="والله صار لي نفس الشي 💔"
-            delay={160}
-            accent={COLORS.red}
-          />
+        <div style={{ marginTop: 30 }}>
+          <PillBadge delay={170} bg={COLORS.brandRed} size={56} rotation={-4}>
+            كل أسبوع نفس القصة 💔
+          </PillBadge>
         </div>
       </AbsoluteFill>
     </AbsoluteFill>
@@ -176,26 +211,47 @@ export const Scene2Pain: React.FC = () => {
 };
 
 // ====================================================================
-// SCENE 3 — SOCIAL PROOF + DISCOVERY (8s = 240f)
-// "...لكن أكثر من 500 مطعم اكتشفوا بروتشين"
+// SCENE 3 — BRAND REVEAL (5s = 150f)
+// Big orange sweep transition → ProChain logo slam
 // ====================================================================
-export const Scene3Discovery: React.FC = () => {
+export const Scene3Reveal: React.FC = () => {
   const frame = useCurrentFrame();
-  // Transition dark → light around frame 60
-  const light = interpolate(frame, [45, 80], [0, 1], {
-    extrapolateLeft: "clamp",
+  const { fps } = useVideoConfig();
+
+  // Big orange sweep wipe across the frame in first 18 frames
+  const wipeT = Math.min(1, frame / 18);
+  const wipeX = interpolate(wipeT, [0, 1], [-1300, 1300]);
+
+  const logoSpring = spring({
+    frame: frame - 30,
+    fps,
+    config: { damping: 11, stiffness: 160, mass: 0.7 },
+  });
+  const logoScale = interpolate(logoSpring, [0, 1], [0.4, 1]);
+  const logoOp = interpolate(logoSpring, [0, 0.5], [0, 1], {
     extrapolateRight: "clamp",
   });
+
   return (
     <AbsoluteFill>
-      <PainBackground />
-      <AbsoluteFill style={{ opacity: light }}>
-        <SolutionBackground />
-      </AbsoluteFill>
-      <Grain opacity={0.07 * (1 - light * 0.7)} />
-      <Vignette strength={0.6 * (1 - light)} />
-      <FlashOverlay at={60} duration={20} />
-      <SparkBurst at={62} color={COLORS.orange} />
+      <StudioBackground />
+      <SoftboxGlow x={300} y={300} size={800} opacity={0.55} />
+
+      {/* Sweeping orange wipe at the start */}
+      <div
+        style={{
+          position: "absolute",
+          left: wipeX,
+          top: -100,
+          width: 1300,
+          height: 2200,
+          background: `linear-gradient(135deg, ${COLORS.orangeBright} 0%, ${COLORS.orangeDark} 100%)`,
+          transform: "skewX(-12deg)",
+          opacity: frame < 30 ? 1 : 0,
+        }}
+      />
+
+      <FlashOverlay at={22} duration={14} color="#FFFFFF" />
 
       <AbsoluteFill
         style={{
@@ -203,60 +259,40 @@ export const Scene3Discovery: React.FC = () => {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: 40,
+          gap: 30,
         }}
       >
-        {frame < 70 ? (
-          <>
-            <KineticText delay={0} size={120} color={COLORS.white}>
-              ...لكن
-            </KineticText>
-            <KineticText delay={22} size={90} color={COLORS.orangeSoft}>
-              الحل كان أقرب مما تتوقع
-            </KineticText>
-          </>
-        ) : (
-          <>
-            <KineticText delay={70} size={92} color={COLORS.ink} weight={700}>
-              أكثر من
-            </KineticText>
-            <div style={{ marginTop: -20 }}>
-              <Shake at={80} intensity={18} duration={14}>
-                <CountingNumber
-                  to={500}
-                  from={0}
-                  delay={80}
-                  duration={28}
-                  color={COLORS.orange}
-                  size={260}
-                  suffix="+"
-                />
-              </Shake>
-            </div>
-            <KineticText delay={100} size={82} color={COLORS.ink} weight={800}>
-              مطعم سعودي
-            </KineticText>
-            <div style={{ marginTop: 20 }}>
-              <CityStrip
-                cities={["الرياض", "جدة", "الدمام", "الخبر"]}
-                delay={130}
-              />
-            </div>
-            <div style={{ marginTop: 40 }}>
-              <KineticText delay={180} size={74} color={COLORS.orangeDark}>
-                اكتشفوا بروتشين
-              </KineticText>
-            </div>
-          </>
-        )}
+        <div
+          style={{
+            transform: `scale(${logoScale})`,
+            opacity: logoOp,
+            position: "relative",
+          }}
+        >
+          <Logo width={620} />
+          <div style={{ position: "absolute", left: -40, bottom: -40 }}>
+            <MiniSwoosh
+              delay={50}
+              width={700}
+              color={COLORS.orangeBright}
+              rotation={-3}
+            />
+          </div>
+        </div>
+
+        <div style={{ marginTop: 100 }}>
+          <SlamHeadline delay={70} size={88} color={COLORS.ink} weight={800}>
+            خيار مطعمك المضمون
+          </SlamHeadline>
+        </div>
       </AbsoluteFill>
     </AbsoluteFill>
   );
 };
 
 // ====================================================================
-// SCENE 4 — DEMO (10s = 300f)
-// Phone with screenshots, tap pulses, "ابحث → اطلب → تابع"
+// SCENE 4 — DEMO (12s = 360f)
+// Floating phone mockup + slam words on the side
 // ====================================================================
 const SHOTS = [
   "buyer_home.png",
@@ -268,103 +304,121 @@ const WORDS = ["ابحث", "اطلب", "تابع", "استلم"];
 
 export const Scene4Demo: React.FC = () => {
   const frame = useCurrentFrame();
-  const perShot = 60; // 2 seconds per screenshot
+  const perShot = 80;
   const idx = Math.min(SHOTS.length - 1, Math.floor(frame / perShot));
   const localInShot = frame - idx * perShot;
+
   return (
     <AbsoluteFill>
-      <SolutionBackground />
+      <StudioBackground />
+      <SoftboxGlow x={500} y={150} size={900} opacity={0.55} />
 
+      {/* Decorative orange swoosh behind everything */}
+      <div style={{ position: "absolute", left: -100, top: 400 }}>
+        <BrushSwoosh
+          delay={0}
+          width={750}
+          height={1300}
+          color={COLORS.orangeBright}
+          variant={3}
+          rotation={-12}
+        />
+      </div>
+
+      {/* Floating phone — re-mount each shot for re-entry animation */}
+      <AbsoluteFill key={`phone-${idx}`} style={{ pointerEvents: "none" }}>
+        <FloatingPhoneMockup
+          src={SHOTS[idx]}
+          delay={6}
+          scale={0.95}
+          x={520}
+          y={420}
+        />
+      </AbsoluteFill>
+
+      {/* Slam word on the left side, changes per shot */}
       <AbsoluteFill
         style={{
           display: "flex",
-          flexDirection: "column",
           alignItems: "center",
           justifyContent: "flex-start",
-          padding: "120px 0 0",
+          paddingLeft: 80,
         }}
       >
-        <KineticText delay={0} size={78} color={COLORS.ink} weight={900}>
-          بضغطة وحدة.
-        </KineticText>
-      </AbsoluteFill>
-
-      <AbsoluteFill
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          marginTop: 120,
-        }}
-      >
-        <div style={{ position: "relative" }}>
-          <PhoneFrame scale={0.82}>
-            <PhoneScreenshot src={SHOTS[idx]} />
+        <Shake key={`word-${idx}`} at={idx * perShot} intensity={12} duration={10}>
+          <div style={{ position: "relative" }}>
             <div
               style={{
-                position: "absolute",
-                left: 0,
-                right: 0,
-                top: 0,
-                bottom: 0,
-                pointerEvents: "none",
+                fontFamily: FONT_STACK,
+                fontWeight: 900,
+                fontSize: 200,
+                color: COLORS.ink,
+                direction: "rtl",
+                letterSpacing: -4,
+                opacity: interpolate(
+                  localInShot,
+                  [0, 10, perShot - 10, perShot],
+                  [0, 1, 1, 0],
+                  { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+                ),
+                transform: `translateY(${interpolate(
+                  localInShot,
+                  [0, 12],
+                  [40, 0],
+                  { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+                )}px)`,
               }}
             >
-              <TapPulse
-                x={300}
-                y={800}
+              {WORDS[idx]}
+            </div>
+            <div style={{ position: "absolute", left: -10, bottom: -10 }}>
+              <MiniSwoosh
                 delay={idx * perShot + 14}
-                color={COLORS.orange}
+                width={360}
+                color={COLORS.orangeBright}
+                rotation={-4}
               />
             </div>
-          </PhoneFrame>
-        </div>
+          </div>
+        </Shake>
       </AbsoluteFill>
 
+      {/* Top header */}
+      <AbsoluteFill style={{ padding: "100px 0 0", display: "flex", justifyContent: "center" }}>
+        <PillBadge delay={2} bg={COLORS.brandRed} size={48} rotation={-2}>
+          بضغطة وحدة في التطبيق
+        </PillBadge>
+      </AbsoluteFill>
+
+      {/* Bottom callout */}
       <AbsoluteFill
         style={{
           display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "flex-end",
-          paddingBottom: 220,
-          gap: 20,
+          alignItems: "flex-end",
+          justifyContent: "center",
+          paddingBottom: 130,
         }}
       >
-        <Shake at={idx * perShot} intensity={10} duration={10}>
-          <div
-            style={{
-              fontFamily: FONT_STACK,
-              fontWeight: 900,
-              fontSize: 120,
-              color: COLORS.orangeDark,
-              direction: "rtl",
-              opacity: interpolate(
-                localInShot,
-                [0, 8, perShot - 8, perShot],
-                [0, 1, 1, 0],
-                { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
-              ),
-              letterSpacing: -3,
-            }}
-          >
-            {WORDS[idx]}
-          </div>
-        </Shake>
-
         <div
           style={{
             fontFamily: FONT_STACK,
-            fontSize: 48,
-            fontWeight: 800,
+            fontSize: 56,
+            fontWeight: 900,
             color: COLORS.ink,
             background: COLORS.white,
-            padding: "20px 40px",
-            borderRadius: 24,
+            padding: "22px 42px",
+            borderRadius: 26,
             direction: "rtl",
-            boxShadow: "0 14px 36px rgba(0,0,0,0.12)",
-            opacity: frame > 220 ? 1 : 0,
-            transform: `translateY(${frame > 220 ? 0 : 30}px)`,
+            boxShadow: "0 18px 40px rgba(0,0,0,0.18)",
+            opacity: interpolate(frame, [280, 300], [0, 1], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            }),
+            transform: `translateY(${interpolate(frame, [280, 300], [40, 0], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            })}px)`,
+            border: `4px solid ${COLORS.orangeBright}`,
           }}
         >
           ٢ دقيقة وطلبيتك في الطريق ⚡
@@ -375,91 +429,75 @@ export const Scene4Demo: React.FC = () => {
 };
 
 // ====================================================================
-// SCENE 5 — CLIMAX (10s = 300f)
-// "الحين أنام مرتاح." + checks + comment
+// SCENE 5 — PROMISE PILLS (10s = 300f)
+// Stack of red/orange pills cascading in
 // ====================================================================
-export const Scene5Climax: React.FC = () => {
-  const frame = useCurrentFrame();
+const PROMISES: { text: string; bg: string; rot: number }[] = [
+  { text: "خيارك المضمون ✓", bg: COLORS.brandRed, rot: -4 },
+  { text: "أسعار جملة 💰", bg: COLORS.orangeBright, rot: 3 },
+  { text: "+500 مطعم سعودي", bg: COLORS.ink, rot: -2 },
+  { text: "توصيل في الوقت ⏱️", bg: COLORS.brandRed, rot: 2 },
+  { text: "جودة مضمونة 👌", bg: COLORS.orangeDark, rot: -3 },
+];
+
+export const Scene5Pills: React.FC = () => {
   return (
     <AbsoluteFill>
-      <AbsoluteFill
-        style={{
-          background: `linear-gradient(180deg, ${COLORS.orangeSoft} 0%, ${COLORS.bg} 50%, ${COLORS.white} 100%)`,
-        }}
-      />
-      {/* Flying receipts in first 40 frames */}
-      {Array.from({ length: 7 }).map((_, i) => {
-        const delay = i * 4;
-        const local = frame - delay;
-        if (local < 0 || local > 50) return null;
-        const t = local / 50;
-        const x = interpolate(t, [0, 1], [0, (random(`rx${i}`) - 0.5) * 1600]);
-        const y = interpolate(t, [0, 1], [0, -1400]);
-        const rot = interpolate(t, [0, 1], [0, (random(`rr${i}`) - 0.5) * 120]);
-        const op = interpolate(t, [0, 0.2, 1], [0.9, 0.9, 0]);
-        return (
-          <div
-            key={i}
-            style={{
-              position: "absolute",
-              left: 380 + i * 40,
-              top: 1200,
-              width: 140,
-              height: 180,
-              background: "white",
-              border: `2px solid ${COLORS.line}`,
-              transform: `translate(${x}px, ${y}px) rotate(${rot}deg)`,
-              opacity: op,
-              borderRadius: 10,
-              boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
-            }}
-          >
-            <div
-              style={{
-                height: 18,
-                background: COLORS.line,
-                margin: "18px 16px 10px",
-              }}
-            />
-            <div style={{ height: 8, background: COLORS.line, margin: "0 24px 8px" }} />
-            <div style={{ height: 8, background: COLORS.line, margin: "0 24px 8px" }} />
-            <div style={{ height: 8, background: COLORS.line, margin: "0 36px 8px" }} />
-          </div>
-        );
-      })}
+      <StudioBackground />
+      <SoftboxGlow x={200} y={150} size={800} opacity={0.55} />
+
+      {/* Background swoosh */}
+      <div style={{ position: "absolute", right: -100, top: 100 }}>
+        <BrushSwoosh
+          delay={4}
+          width={700}
+          height={1500}
+          color={COLORS.orangeBright}
+          variant={1}
+          rotation={10}
+        />
+      </div>
 
       <AbsoluteFill
         style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
-          gap: 50,
-          padding: "0 40px",
+          justifyContent: "flex-start",
+          padding: "180px 0 0",
+          gap: 36,
         }}
       >
-        <KineticText delay={40} size={180} color={COLORS.ink} weight={900}>
-          الحين
-        </KineticText>
-        <div style={{ marginTop: -40 }}>
-          <KineticText delay={60} size={180} color={COLORS.orangeDark} weight={900}>
-            أنام مرتاح.
-          </KineticText>
+        <SlamHeadline delay={0} size={92} color={COLORS.ink} weight={900}>
+          كل اللي تحتاجه
+        </SlamHeadline>
+        <div style={{ marginTop: -10, position: "relative" }}>
+          <SlamHeadline delay={18} size={120} color={COLORS.brandRed} weight={900}>
+            في مكان واحد
+          </SlamHeadline>
+          <div style={{ position: "absolute", left: 100, bottom: -25 }}>
+            <MiniSwoosh delay={36} width={520} color={COLORS.orangeBright} rotation={-3} />
+          </div>
         </div>
 
-        <div style={{ marginTop: 60, display: "flex", flexDirection: "column", gap: 20 }}>
-          <CheckRow text="وصل في الوقت" delay={120} />
-          <CheckRow text="جودة ثابتة" delay={150} />
-          <CheckRow text="وفّر 30% من التكلفة" delay={180} color={COLORS.orange} />
-        </div>
-
-        <div style={{ marginTop: 30 }}>
-          <CommentCard
-            handle="cafe_alhara"
-            text="انضممت الشهر اللي فات، الفرق هايل 🔥"
-            delay={230}
-            accent={COLORS.green}
-          />
+        <div
+          style={{
+            marginTop: 80,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 28,
+          }}
+        >
+          {PROMISES.map((p, i) => (
+            <PromisePill
+              key={i}
+              text={p.text}
+              delay={70 + i * 20}
+              bg={p.bg}
+              rotation={p.rot}
+            />
+          ))}
         </div>
       </AbsoluteFill>
     </AbsoluteFill>
@@ -467,23 +505,49 @@ export const Scene5Climax: React.FC = () => {
 };
 
 // ====================================================================
-// SCENE 6 — CTA WITH SCARCITY (7s = 210f)
-// "أول 100 مطعم → شهر مجاني"
+// SCENE 6 — END FRAME (8s = 240f)
+// Bold red full-bleed, big logo, tagline, swoosh — Jahez end-frame style
 // ====================================================================
-export const Scene6CTA: React.FC = () => {
+export const Scene6End: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const finalSpring = spring({
-    frame: frame - 140,
+
+  const bgT = Math.min(1, frame / 14);
+  const bgScale = interpolate(bgT, [0, 1], [1.15, 1]);
+
+  const logoSpring = spring({
+    frame: frame - 22,
     fps,
-    config: { damping: 14, stiffness: 140, mass: 0.8 },
+    config: { damping: 12, stiffness: 150, mass: 0.7 },
   });
-  const finalScale = interpolate(finalSpring, [0, 1], [0.9, 1]);
+  const logoScale = interpolate(logoSpring, [0, 1], [0.6, 1]);
+  const logoOp = interpolate(logoSpring, [0, 0.5], [0, 1], {
+    extrapolateRight: "clamp",
+  });
 
   return (
     <AbsoluteFill>
-      <SolutionBackground />
-      <SparkBurst at={0} color={COLORS.orange} />
+      {/* Bold brand background */}
+      <AbsoluteFill
+        style={{
+          background: `linear-gradient(135deg, ${COLORS.brandRed} 0%, ${COLORS.brandRedDeep} 100%)`,
+          transform: `scale(${bgScale})`,
+        }}
+      />
+
+      <FlashOverlay at={0} duration={10} color="#FFFFFF" />
+
+      {/* Big signature swoosh on the right side (Jahez signature) */}
+      <div style={{ position: "absolute", right: -120, top: 100 }}>
+        <BrushSwoosh
+          delay={6}
+          width={750}
+          height={1700}
+          color={COLORS.orangeBright}
+          variant={2}
+          rotation={6}
+        />
+      </div>
 
       <AbsoluteFill
         style={{
@@ -491,74 +555,68 @@ export const Scene6CTA: React.FC = () => {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: 36,
+          gap: 40,
+          padding: "0 40px",
         }}
       >
-        <div style={{ opacity: interpolate(frame, [0, 10], [0, 1], { extrapolateRight: "clamp" }) }}>
-          <Logo width={440} />
+        {/* White logo card */}
+        <div
+          style={{
+            transform: `scale(${logoScale})`,
+            opacity: logoOp,
+            background: COLORS.white,
+            borderRadius: 36,
+            padding: "40px 60px",
+            boxShadow: "0 30px 80px rgba(0,0,0,0.35)",
+          }}
+        >
+          <Logo width={520} />
         </div>
 
         <div style={{ marginTop: 10 }}>
-          <KineticText delay={15} size={76} color={COLORS.ink} weight={800}>
-            أول ١٠٠ مطعم
-          </KineticText>
+          <SlamHeadline delay={50} size={86} color={COLORS.white} weight={900} shadow>
+            منصتك المضمونة للتوريد
+          </SlamHeadline>
         </div>
 
-        <Shake at={35} intensity={18} duration={14}>
-          <div
-            style={{
-              background: `linear-gradient(135deg, ${COLORS.orange} 0%, ${COLORS.orangeDark} 100%)`,
-              color: "white",
-              fontFamily: FONT_STACK,
-              fontWeight: 900,
-              fontSize: 150,
-              padding: "30px 70px",
-              borderRadius: 40,
-              direction: "rtl",
-              letterSpacing: -3,
-              boxShadow: "0 30px 60px rgba(232,134,26,0.45)",
-              transform: `scale(${interpolate(
-                spring({
-                  frame: frame - 35,
-                  fps,
-                  config: { damping: 10, stiffness: 200, mass: 0.7 },
-                }),
-                [0, 1],
-                [0.5, 1]
-              )})`,
-            }}
-          >
-            شهر مجاني
-          </div>
-        </Shake>
-
-        <div style={{ marginTop: 20, opacity: frame > 75 ? 1 : 0 }}>
-          <PulseBadge bg={COLORS.red}>⏰ العرض ينتهي الجمعة</PulseBadge>
+        <div style={{ marginTop: 30, opacity: frame > 80 ? 1 : 0 }}>
+          <PillBadge delay={80} bg={COLORS.white} color={COLORS.brandRed} size={62} rotation={-3}>
+            ⏰ العرض ينتهي الجمعة
+          </PillBadge>
         </div>
 
         <div
           style={{
-            marginTop: 40,
-            transform: `scale(${finalScale})`,
-            opacity: interpolate(frame, [140, 160], [0, 1], {
+            marginTop: 50,
+            opacity: interpolate(frame, [120, 145], [0, 1], {
               extrapolateLeft: "clamp",
               extrapolateRight: "clamp",
             }),
-            fontFamily: FONT_STACK,
-            fontSize: 56,
-            fontWeight: 900,
-            color: COLORS.ink,
-            direction: "rtl",
+            transform: `translateY(${interpolate(frame, [120, 145], [30, 0], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            })}px)`,
             textAlign: "center",
+            fontFamily: FONT_STACK,
+            direction: "rtl",
           }}
         >
-          حمّل التطبيق الحين 👇
           <div
             style={{
-              marginTop: 14,
-              fontSize: 44,
-              color: COLORS.muted,
+              fontSize: 72,
+              fontWeight: 900,
+              color: COLORS.white,
+              letterSpacing: -2,
+            }}
+          >
+            حمّل الحين 👇
+          </div>
+          <div
+            style={{
+              marginTop: 12,
+              fontSize: 50,
               fontWeight: 700,
+              color: "rgba(255,255,255,0.85)",
             }}
           >
             الرابط في البايو
@@ -568,4 +626,3 @@ export const Scene6CTA: React.FC = () => {
     </AbsoluteFill>
   );
 };
-
