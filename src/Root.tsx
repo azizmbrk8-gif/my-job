@@ -1,6 +1,6 @@
 import React from "react";
 import { Composition } from "remotion";
-import { ProChainAd } from "./Composition";
+import { LinkedInPost } from "./LinkedInPost";
 import { FPS, HEIGHT, TOTAL_DURATION, WIDTH } from "./theme";
 
 export const RemotionRoot: React.FC = () => {
@@ -8,11 +8,21 @@ export const RemotionRoot: React.FC = () => {
     <>
       <Composition
         id="ProChainAd"
-        component={ProChainAd}
+        lazyComponent={() =>
+          import("./Composition").then((m) => ({ default: m.ProChainAd }))
+        }
         durationInFrames={TOTAL_DURATION}
         fps={FPS}
         width={WIDTH}
         height={HEIGHT}
+      />
+      <Composition
+        id="LinkedInPost"
+        component={LinkedInPost}
+        durationInFrames={1}
+        fps={30}
+        width={1200}
+        height={627}
       />
     </>
   );

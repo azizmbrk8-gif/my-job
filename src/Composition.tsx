@@ -1,6 +1,11 @@
 import React from "react";
 import { AbsoluteFill, Audio, Series, staticFile } from "remotion";
+import { loadFont } from "@remotion/google-fonts/Cairo";
 import { COLORS, FONT_STACK, SCENE_DURATIONS } from "./theme";
+
+loadFont("normal", {
+  weights: ["400", "600", "700", "800", "900"],
+});
 import {
   Scene1Hook,
   Scene2Pain,
